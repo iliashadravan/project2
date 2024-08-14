@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $delay_in = max($clock_in->getTimestamp() - $standard_clock_in->getTimestamp(), 0);
 
                 // محاسبه تأخیر در خروج
-                $delay_out = max($clock_out->getTimestamp() - $standard_clock_out->getTimestamp(), 0);
+                $delay_out = max($standard_clock_out->getTimestamp() - $clock_out->getTimestamp(), 0);
 
                 // محاسبه تأخیر کل
                 $total_delay = $delay_in + $delay_out;
