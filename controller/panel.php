@@ -27,14 +27,28 @@ $success = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // برای ثبت زمان ورود
     if (isset($_POST['clock_in'])) {
-        $sql = "INSERT INTO work_time (user_id, clock_in, date) VALUES (?, NOW(), CURDATE())";
+        // بررسی اینکه آیا کاربر زمان خروج قبلی را ثبت کرده است یا خیر
+        $sql = "SELECT id FROM work_time WHERE user_id = ? AND clock_in IS NOT NULL AND clock_out IS NULL ORDER BY id DESC LIMIT 1";
         $stmt = $db->prepare($sql);
         $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $work_time = $result->fetch_assoc();
 
-        if ($stmt->execute()) {
-            $success['message'] = "The login time was successfully registered.";
+        if ($work_time) {
+            // اگر رکوردی با زمان خروج ثبت نشده وجود دارد، پیام خطا نمایش داده می‌شود
+            $errors['clock_in'] = "You have not clocked out yet. Please clock out before clocking in again.";
         } else {
-            $errors['message'] = "Error while registering time. Please try again. " . $stmt->error;
+            // ثبت زمان ورود جدید
+            $sql = "INSERT INTO work_time (user_id, clock_in, date) VALUES (?, NOW(), CURDATE())";
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param('i', $user_id);
+
+            if ($stmt->execute()) {
+                $success['message'] = "The login time was successfully registered.";
+            } else {
+                $errors['message'] = "Error while registering time. Please try again. " . $stmt->error;
+            }
         }
     }
 
