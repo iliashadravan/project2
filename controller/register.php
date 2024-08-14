@@ -1,7 +1,12 @@
 <?php
-global $db;
+global $db, $user;
 require_once 'db.php';
 require_once 'function.errors.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
 
 $errors = [];
 $show_errors = false;

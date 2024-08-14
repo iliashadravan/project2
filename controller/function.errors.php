@@ -1,3 +1,4 @@
+
 <?php
 
 function request($field)
@@ -7,14 +8,13 @@ function request($field)
 
 function has_error($field)
 {
-    global $errors;                     //error در سایت وجود دارد
-
+    global $errors;
     return isset($errors[$field]);
 }
 
 function get_error($field)
 {
-    global $errors;                   // error را به ما برگردانید
-
+    global $errors;
     return has_error($field) ? $errors[$field] : null;
 }
+?>
