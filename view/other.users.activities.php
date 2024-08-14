@@ -91,9 +91,44 @@ require_once '../controller/other.users.activities.php';
             margin-top: 20px;
             font-size: 16px;
         }
+        .sidebar {
+            width: 200px;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-x: auto;
+        }
+
+        .sidebar h2 {
+            color: #fff;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .sidebar a {
+            color: #ddd;
+            text-decoration: none;
+            display: block;
+            margin: 15px 0;
+            font-size: 1.1em;
+        }
+
+        .sidebar a:hover {
+            color: #fff;
+            background-color: #555;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.4s;
+        }
     </style>
 </head>
 <body>
+<?php include 'sidebar.php'; ?>
 <div class="container">
     <h1>لیست کاربران</h1>
 
@@ -151,9 +186,6 @@ require_once '../controller/other.users.activities.php';
         <?php endforeach; ?>
         </tbody>
     </table>
-    <div class="back-link">
-        <a href="panel.php">بازگشت به پنل</a>
-    </div>
 </div>
 </body>
 </html>
