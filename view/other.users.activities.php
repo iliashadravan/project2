@@ -166,7 +166,7 @@ require_once '../controller/other.users.activities.php';
 <?php include 'sidebar.php'; ?>
 <div class="container">
     <div class="header">
-        <h1>User management</h1>
+        <h1>Users management</h1>
     </div>
 
     <!-- فرم انتخاب ماه و سال مانند قبل است -->
