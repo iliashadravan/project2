@@ -66,7 +66,7 @@ require_once '../controller/users.activities.php';
 
         table {
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             border-collapse: collapse;
             background-color: #fff;

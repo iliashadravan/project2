@@ -118,20 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// واکشی اطلاعات کاربر برای نمایش در صفحه
-$query = "SELECT * FROM users WHERE id = ?";
-$stmt = $db->prepare($query);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
-// اگر کاربر پیدا نشد، به صفحه ورود برگردید
-if (!$user) {
-    header('Location: login.php');
-    exit;
-}
-
 // واکشی داده‌های تایم ورود و خروج
 $query = "SELECT * FROM work_time WHERE user_id = ? ORDER BY date DESC";
 $stmt = $db->prepare($query);
