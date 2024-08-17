@@ -2,10 +2,6 @@
 // اتصال به پایگاه داده
 global $db;
 require_once 'db.php';
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
-}
 $errors = [];
 $success = [];
 
@@ -36,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $db->prepare($query);
                 $stmt->bind_param('ii', $is_active, $user_id);
                 if ($stmt->execute()) {
-                    $success[] = isset($_POST['deactivate_user']) ? "User inactive successfully" : "User active successfully.";
+                    $success[] = isset($_POST['deactivate_user']) ? "کاربر با موفقیت غیرفعال شد." : "کاربر با موفقیت فعال شد.";
                 } else {
                     $errors[] = "خطا در به‌روزرسانی وضعیت کاربر: " . $stmt->error;
                 }

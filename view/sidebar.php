@@ -20,6 +20,8 @@ if (isset($_SESSION['user'])) {
         <?php if (isset($user['is_admin']) && $user['is_admin'] == 1) { ?>
             <li><a href="register.php">Register New User</a></li>
             <li><a href="other.users.activities.php">Other Users Activities</a></li>
+            <li><a href="other.users.situation.php"> Users situation</a></li>
+
         <?php } ?>
     </ul>
 </div>

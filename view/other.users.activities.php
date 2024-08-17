@@ -9,6 +9,7 @@ require_once '../controller/other.users.activities.php';
     <title>User management</title>
 </head>
 <style>
+    /* استایل‌ها به همان صورت */
     body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f4;
@@ -106,12 +107,6 @@ require_once '../controller/other.users.activities.php';
         color: #fff;
         cursor: pointer;
     }
-    .btn.deactivate {
-        background-color:#28a745 ;
-    }
-    .btn.activate {
-        background-color: #dc3545;
-    }
     .sidebar {
         width: 200px;
         background-color: #333;
@@ -169,7 +164,7 @@ require_once '../controller/other.users.activities.php';
         <h1>Users management</h1>
     </div>
 
-    <!-- فرم انتخاب ماه و سال مانند قبل است -->
+    <!-- فرم انتخاب ماه و سال -->
     <form method="POST" action="">
         <div class="form-group">
             <label for="month">month:</label>
@@ -212,6 +207,7 @@ require_once '../controller/other.users.activities.php';
             <button type="submit">Search</button>
         </div>
     </form>
+    
     <!-- نمایش پیام‌های موفقیت یا خطا -->
     <?php if (!empty($errors)): ?>
         <div class="error">
@@ -233,47 +229,23 @@ require_once '../controller/other.users.activities.php';
         </div>
     <?php endif; ?>
 
-    <!-- نمایش جدول کاربران -->
+    <!-- جدول نمایش کاربران و اطلاعات آنها -->
     <table>
         <thead>
-        <tr>
-            <th>Firstname</th>
-            <th>Lastname</th>
-            <th>Condition</th>
-            <th>Total Work Time</th>
-            <th>Total Delay Time</th>
-            <th>edit</th>
-            <th>Operation</th>
-        </tr>
+            <tr>
+                <th>Name</th>
+                <th>Total work time</th>
+                <th>Total delay time</th>
+            </tr>
         </thead>
         <tbody>
-        <?php foreach ($users as $user): ?>
-            <tr>
-                <td><?php echo htmlspecialchars($user['firstname']); ?></td>
-                <td><?php echo htmlspecialchars($user['lastname']); ?></td>
-                <td><?php echo $user['is_active'] ? 'Inactive' : 'Active'; ?></td>
-                <td><?php echo isset($work_times[$user['id']]) ? $work_times[$user['id']] : '00:00:00'; ?></td>
-                <td><?php echo isset($delay_times[$user['id']]) ? $delay_times[$user['id']] : '00:00:00'; ?></td>
-                <td><a href="edit.users.php?id=<?php echo $user['id']; ?>" class="btn edit">Edit</a></td>
-
-                <td>
-                    <?php if ($user['is_admin'] && !$user['is_active']): ?>
-                        <!-- ادمین‌های غیرفعال را نمی‌توان فعال کرد -->
-                    <?php elseif ($user['is_active']): ?>
-                        <form method="POST" action="" style="display:inline;">
-                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                            <button type="submit" name="deactivate_user" class="btn deactivate">Active</button>
-                        </form>
-                    <?php else: ?>
-                        <form method="POST" action="" style="display:inline;">
-                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                            <button type="submit" name="activate_user" class="btn activate">Inactive</button>
-
-                        </form>
-                    <?php endif; ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
+            <?php foreach ($users as $user): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($user['firstname']) . ' ' . htmlspecialchars($user['lastname']); ?></td>
+                    <td><?php echo isset($work_times[$user['id']]) ? $work_times[$user['id']] : '00:00:00'; ?></td>
+                    <td><?php echo isset($delay_times[$user['id']]) ? $delay_times[$user['id']] : '00:00:00'; ?></td>
+                </tr>
+            <?php endforeach; ?>
         </tbody>
     </table>
 </div>
