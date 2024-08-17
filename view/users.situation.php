@@ -1,6 +1,6 @@
 <?php
 global $users;
-require_once '../controller/other.users.situation.php';
+require_once '../controller/users.situation.php';
 
 ?>
 <!DOCTYPE html>
