@@ -1,8 +1,8 @@
 <?php
 
-global $db;
+global $db, $user;
 require_once '../controller/db.php'; // اتصال به پایگاه داده
-
+require_once 'function.query.php';   // بارگذاری فایل توابع
 $errors = [];
 $success = [];
 
@@ -27,13 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($errors)) {
         $user_id = $_SESSION['user_id'];
 
-        // بررسی رمز عبور فعلی
-        $query = "SELECT password FROM users WHERE id = ?";
-        $stmt = $db->prepare($query);
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
+        // فراخوانی تابع برای دریافت رمز عبور فعلی کاربر
+        $user = getUserPasswordById($user_id, $db);
 
         if ($user && password_verify($current_password, $user['password'])) {
             // رمز عبور جدید را هش کنید
@@ -50,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $errors['update'] = 'error while updating password';
             }
         } else {
-            $errors['current_password'] = 'current password is wrong ! ';
+            $errors['current_password'] = 'current password is wrong!';
         }
     }
 }

@@ -1,5 +1,4 @@
 <?php
-global $month_names, $total_delay_time, $total_work_time, $month_name, $target_month, $target_year;
 require_once '../controller/users.activities.php';
 ?>
 <!DOCTYPE html>
@@ -7,7 +6,7 @@ require_once '../controller/users.activities.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monthly report</title>
+    <title>گزارش ماهانه</title>
     <style>
         body {
             font-family: 'Tahoma', sans-serif;
@@ -17,12 +16,10 @@ require_once '../controller/users.activities.php';
             padding: 20px;
             line-height: 1.6;
         }
-
         .header {
             text-align: center;
             margin-bottom: 30px;
         }
-
         .header h1 {
             font-size: 28px;
             color: #4CAF50;
@@ -31,25 +28,21 @@ require_once '../controller/users.activities.php';
             border-bottom: 2px solid #4CAF50;
             display: inline-block;
         }
-
         .select-month-year {
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
             gap: 10px;
         }
-
         label {
             font-weight: bold;
         }
-
         select {
             padding: 5px;
             font-size: 16px;
             border-radius: 4px;
             border: 1px solid #ccc;
         }
-
         button {
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -59,11 +52,9 @@ require_once '../controller/users.activities.php';
             cursor: pointer;
             font-size: 16px;
         }
-
         button:hover {
             background-color: #45a049;
         }
-
         table {
             width: 100%;
             max-width: 800px;
@@ -74,22 +65,18 @@ require_once '../controller/users.activities.php';
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
-
         th, td {
             padding: 12px 15px;
             text-align: center;
             border-bottom: 1px solid #ddd;
         }
-
         th {
             background-color: #4CAF50;
             color: #fff;
         }
-
         tr:hover {
             background-color: #f5f5f5;
         }
-
         p {
             text-align: center;
             font-size: 18px;
@@ -107,13 +94,11 @@ require_once '../controller/users.activities.php';
             left: 0;
             overflow-x: auto;
         }
-
         .sidebar h2 {
             color: #fff;
             font-size: 1.2em;
             margin-bottom: 20px;
         }
-
         .sidebar a {
             color: #ddd;
             text-decoration: none;
@@ -121,7 +106,6 @@ require_once '../controller/users.activities.php';
             margin: 15px 0;
             font-size: 1.1em;
         }
-
         .sidebar a:hover {
             color: #fff;
             background-color: #555;
@@ -134,44 +118,46 @@ require_once '../controller/users.activities.php';
 <body>
 <?php include 'sidebar.php'; ?>
 <div class="header">
-    <h1>Monthly report</h1>
+    <h1>گزارش ماهانه</h1>
 </div>
 <form method="POST" action="" class="select-month-year">
-    <label for="month">Select month:</label>
+    <label for="month">انتخاب ماه:</label>
     <select id="month" name="month">
-        <?php foreach ($month_names as $key => $name) : ?>
+        <?php foreach ($persian_month_names as $key => $name) : ?>
             <option value="<?= $key ?>" <?= $key == $target_month ? 'selected' : '' ?>><?= $name ?></option>
         <?php endforeach; ?>
     </select>
 
-    <label for="year">Select year:</label>
+    <label for="year">انتخاب سال:</label>
     <select id="year" name="year">
         <?php for ($i = date('Y'); $i >= date('Y') - 4; $i--) : ?>
             <option value="<?= $i ?>" <?= $i == $target_year ? 'selected' : '' ?>><?= $i ?></option>
         <?php endfor; ?>
     </select>
-    <button type="submit">Show report</button>
+    <button type="submit">نمایش گزارش</button>
 </form>
 
-<p>month: <?= $month_name ?>, year: <?= $target_year ?></p>
+<p>ماه: <?= $persian_month_name ?>، سال: <?= $persian_year ?></p>
 
 <table>
     <thead>
     <tr>
-        <th>Description</th>
-        <th>Time</th>
+        <th>شناسه کاربر</th>
+        <th>ساعات کاری</th>
+        <th>ساعات تأخیر</th>
     </tr>
     </thead>
     <tbody>
-    <tr>
-        <td>Total working hours</td>
-        <td><?= $total_work_time ?></td>
-    </tr>
-    <tr>
-        <td>Total hours of delay</td>
-        <td><?= $total_delay_time ?></td>
-    </tr>
+    <?php foreach ($users as $user) : ?>
+        <tr>
+            <td><?= htmlspecialchars($user['username']) ?></td>
+            <td><?= isset($work_times[$user['id']]) ? $work_times[$user['id']] : '00:00:00' ?></td>
+            <td><?= isset($delay_times[$user['id']]) ? $delay_times[$user['id']] : '00:00:00' ?></td>
+        </tr>
+    <?php endforeach; ?>
     </tbody>
-</table>
+</table### ادامه کد HTML و PHP
+
+        ```php
 </body>
 </html>

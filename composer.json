@@ -1,5 +1,7 @@
 {
     "require": {
-        "hekmatinasser/verta": "^8.4"
+        "hekmatinasser/verta": "^8.4",
+        "morilog/jalali": "^3.4",
+        "hekmatinasser/jalali": "^8.2"
     }
 }

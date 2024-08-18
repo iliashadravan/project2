@@ -100,10 +100,10 @@ require_once '../controller/users.situation.php';
         cursor: pointer;
     }
     .btn.deactivate {
-        background-color:#28a745 ;
+        background-color: #dc3545;
     }
     .btn.activate {
-        background-color: #dc3545;
+        background-color: #28a745;
     }
     .sidebar {
         width: 200px;
@@ -197,7 +197,7 @@ require_once '../controller/users.situation.php';
         <?php foreach ($users as $user): ?>
             <tr>
                 <td><?php echo htmlspecialchars($user['firstname']) . ' ' . htmlspecialchars($user['lastname']); ?></td>
-                <td><?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?></td>
+                <td><?php echo $user['is_active'] ? 'Inactive' : 'Active'; ?></td>
                 <td><a href="edit.users.php?id=<?php echo $user['id']; ?>" class="btn edit">Edit</a></td>
                 <td>
                     <?php if ($user['is_admin'] && !$user['is_active']): ?>
@@ -205,12 +205,12 @@ require_once '../controller/users.situation.php';
                     <?php elseif ($user['is_active']): ?>
                         <form method="POST" action="" style="display:inline;">
                             <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                            <button type="submit" name="deactivate_user" class="btn deactivate">Deactivate</button>
+                            <button type="submit" name="deactivate_user" class="btn deactivate">Activate</button>
                         </form>
                     <?php else: ?>
                         <form method="POST" action="" style="display:inline;">
                             <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                            <button type="submit" name="activate_user" class="btn activate">Activate</button>
+                            <button type="submit" name="activate_user" class="btn activate">Deactivate</button>
                         </form>
                     <?php endif; ?>
                 </td>
