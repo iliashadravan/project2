@@ -1,7 +1,12 @@
 <?php
+require_once '../vendor/autoload.php'; // بارگذاری autoload Composer
+
+use Hekmatinasser\Verta\Verta;
+
 // اتصال به پایگاه داده
 global $db;
 require_once 'db.php';
+require_once 'function.query.php';
 $errors = [];
 $success = [];
 
@@ -9,37 +14,26 @@ $success = [];
 $target_year = isset($_POST['year']) ? intval($_POST['year']) : date('Y');
 $target_month = isset($_POST['month']) ? str_pad(intval($_POST['month']), 2, '0', STR_PAD_LEFT) : date('m');
 
+// تبدیل سال و ماه میلادی به شمسی
+function convertToJalali($year, $month) {
+    $date = new Verta("$year-$month-01");
+    return [
+        'year' => $date->format('Y'),
+        'month' => $date->format('F')
+    ];
+}
+
+$jalali_date = convertToJalali($target_year, $target_month);
+$persian_year = $jalali_date['year'];
+$persian_month_name = $jalali_date['month'];
+
 // پردازش درخواست‌های فعال و غیرفعال کردن کاربران
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['deactivate_user']) || isset($_POST['activate_user'])) {
         $user_id = intval($_POST['user_id']);
 
         // دریافت اطلاعات کاربر از پایگاه داده
-        $query_user = "SELECT is_admin, is_active FROM users WHERE id = ?";
-        $stmt = $db->prepare($query_user);
-        $stmt->bind_param('i', $user_id);
-        $stmt->execute();
-        $user_data = $stmt->get_result()->fetch_assoc();
-
-        if ($user_data) {
-            $is_active = isset($_POST['deactivate_user']) ? 0 : 1;
-
-            // جلوگیری از غیرفعال کردن خودکار ادمین
-            if ($user_data['is_admin'] && $is_active === 0) {
-                $errors[] = "ادمین نمی‌تواند خود را غیرفعال کند.";
-            } else {
-                $query = "UPDATE users SET is_active = ? WHERE id = ?";
-                $stmt = $db->prepare($query);
-                $stmt->bind_param('ii', $is_active, $user_id);
-                if ($stmt->execute()) {
-                    $success[] = isset($_POST['deactivate_user']) ? "کاربر با موفقیت غیرفعال شد." : "کاربر با موفقیت فعال شد.";
-                } else {
-                    $errors[] = "خطا در به‌روزرسانی وضعیت کاربر: " . $stmt->error;
-                }
-            }
-        } else {
-            $errors[] = "کاربر یافت نشد.";
-        }
+        $user_data = getUserStatusById($user_id, $db);
     }
 }
 
@@ -81,8 +75,5 @@ while ($row = $delay_data->fetch_assoc()) {
     $delay_times[$row['user_id']] = gmdate('H:i:s', $row['total_delay_seconds']);
 }
 
-// واکشی لیست تمام کاربران
-$query = "SELECT id, firstname, lastname, is_active, is_admin FROM users";
-$result = $db->query($query);
-$users = $result->fetch_all(MYSQLI_ASSOC);
+$users = getAllUsers($db);
 ?>

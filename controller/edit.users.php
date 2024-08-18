@@ -1,24 +1,15 @@
 <?php
 
-global $db;
+global $db, $user;
 require_once 'db.php';
+require_once 'function.query.php'; // بارگذاری فایل شامل تابع
 
 $errors = [];
 $success = [];
 $user_id = $_GET['id'] ?? null;
 
-// بررسی اینکه آیا کاربر مجاز به ویرایش است
-//if (!isset($user_id) || !is_numeric($user_id)) {
-//    die('Invalid user ID.');
-//}
-
 // واکشی اطلاعات کاربر برای ویرایش
-$query = "SELECT id, firstname, lastname, phone_number, password FROM users WHERE id = ?";
-$stmt = $db->prepare($query);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$user = getUserById($user_id, $db);
 
 if (!$user) {
     die('User not found.');

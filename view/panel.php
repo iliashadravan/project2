@@ -1,6 +1,9 @@
 <?php
 global $work_times, $db;
 require_once '../controller/panel.php';
+require_once '../vendor/autoload.php';
+use Hekmatinasser\Verta\Verta;
+
 ?>
 <!DOCTYPE html>
 <html lang="fa">
@@ -10,33 +13,32 @@ require_once '../controller/panel.php';
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
+            background-color: #f4f4f9;
             margin: 0;
             padding: 0;
         }
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1500px;
             margin: 0 auto;
             padding: 20px;
+            margin-right: 50px;
         }
         .header {
-            background-color: #2c2c2c;
+            background-color: #3f51b5;
             color: #fff;
             padding: 20px;
             text-align: center;
             border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         form {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-
         }
         .form-group {
             margin-bottom: 15px;
@@ -60,7 +62,7 @@ require_once '../controller/panel.php';
             resize: vertical;
         }
         .form-group button {
-            background-color: #4a4a4a;
+            background-color: #3f51b5;
             color: #fff;
             border: none;
             cursor: pointer;
@@ -68,7 +70,7 @@ require_once '../controller/panel.php';
             transition: background-color 0.3s ease;
         }
         .form-group button:hover {
-            background-color: #333;
+            background-color: #303f9f;
         }
         table {
             width: 100%;
@@ -77,7 +79,7 @@ require_once '../controller/panel.php';
             background-color: #fff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         table th, table td {
             padding: 15px;
@@ -85,17 +87,21 @@ require_once '../controller/panel.php';
             border-bottom: 1px solid #ddd;
         }
         table th {
-            background-color: #4a4a4a;
+            background-color: #3f51b5;
             color: #fff;
+            font-weight: bold;
         }
         table tr:nth-child(even) {
             background-color: #f9f9f9;
+        }
+        table tr:hover {
+            background-color: #e8eaf6;
         }
         .error, .success {
             background-color: #fff;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
         .error {
@@ -109,43 +115,11 @@ require_once '../controller/panel.php';
         .error p, .success p {
             margin: 0;
         }
-        .sidebar {
-            width: 200px;
-            background-color: #333;
-            color: white;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            overflow-x: auto;
-        }
 
-        .sidebar h2 {
-            color: #fff;
-            font-size: 1.2em;
-            margin-bottom: 20px;
-        }
 
-        .sidebar a {
-            color: #ddd;
-            text-decoration: none;
-            display: block;
-            margin: 15px 0;
-            font-size: 1.1em;
-        }
-
-        .sidebar a:hover {
-            color: #fff;
-            background-color: #555;
-            padding: 5px;
-            border-radius: 4px;
-            transition: all 0.4s;
-        }
         button {
             padding: 10px 20px;
-            background-color: #2C2C2CFF;
+            background-color: #4CAF50;
             color: #fff;
             border: none;
             border-radius: 4px;
@@ -154,16 +128,51 @@ require_once '../controller/panel.php';
         }
 
         button:hover {
-            background-color: #848684;
-            transition: 0.3s;
+            background-color: #45a049;
         }
+        .sidebar {
+            width: 200px;
+            background-color: #343a40;
+            color: #fff;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-x: hidden;
+            transition: all 0.3s;
+        }
+        .sidebar:hover {
+            width: 230px;
+        }
+        .sidebar h2 {
+            color: #fff;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            color: #ddd;
+            text-decoration: none;
+            display: block;
+            margin: 15px 0;
+            font-size: 1.1em;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .sidebar a:hover {
+            color: #fff;
+            background-color: #495057;
+        }
+
     </style>
 </head>
 <body>
 <?php include 'sidebar.php'; ?>
 <div class="container">
     <div class="header">
-        <h1>Users panel</h1>
+        <h1>Users Panel</h1>
     </div>
 
     <!-- فرم ثبت زمان ورود -->
@@ -185,7 +194,7 @@ require_once '../controller/panel.php';
     <?php if ($clock_in_record): ?>
         <form method="POST" action="">
             <div class="form-group">
-                <label for="report">report:</label>
+                <label for="report">Report:</label>
                 <textarea name="report" id="report"></textarea>
             </div>
             <button type="submit" name="clock_out">Exit</button>
@@ -221,10 +230,15 @@ require_once '../controller/panel.php';
         </thead>
         <tbody>
         <?php while ($row = $work_times->fetch_assoc()): ?>
+            <?php
+            $date_shamsi = (new Verta($row['date']))->format('Y-m-d');
+            $clock_in_shamsi = $row['clock_in'] ? (new Verta($row['clock_in']))->format('H:i:s') : '---';
+            $clock_out_shamsi = $row['clock_out'] ? (new Verta($row['clock_out']))->format('H:i:s') : '---';
+            ?>
             <tr>
-                <td><?php echo htmlspecialchars($row['date']); ?></td>
-                <td><?php echo htmlspecialchars($row['clock_in']); ?></td>
-                <td><?php echo htmlspecialchars($row['clock_out']); ?></td>
+                <td><?php echo htmlspecialchars($date_shamsi); ?></td>
+                <td><?php echo htmlspecialchars($clock_in_shamsi); ?></td>
+                <td><?php echo htmlspecialchars($clock_out_shamsi); ?></td>
                 <td><?php echo htmlspecialchars($row['report']); ?></td>
             </tr>
         <?php endwhile; ?>

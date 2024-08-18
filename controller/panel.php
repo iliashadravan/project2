@@ -1,6 +1,9 @@
 <?php
-global $db;
+global $db, $result, $user, $work_time;
 require_once 'db.php';
+require_once 'function.query.php';
+require_once '../vendor/autoload.php';
+use Hekmatinasser\Verta\Verta;
 
 // بررسی ورود کاربر
 if (!isset($_SESSION['user_id'])) {
@@ -11,12 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // واکشی اطلاعات کاربر برای نمایش در صفحه
-$query = "SELECT * FROM users WHERE id = ?";
-$stmt = $db->prepare($query);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$userData = getUserDataById($db, $user_id);
 
 // ذخیره اطلاعات کاربر در $_SESSION
 $_SESSION['user'] = $user;
@@ -24,34 +22,26 @@ $errors = [];
 $success = [];
 
 // واکشی زمان‌های استاندارد از جدول settings
-$query = "SELECT standard_clock_in, standard_clock_out FROM setting WHERE id = 1"; // یا ID مناسب برای تنظیمات شما
-$stmt = $db->prepare($query);
-$stmt->execute();
-$settings = $stmt->get_result()->fetch_assoc();
+$settings = getStandardClockSettings($db);
 
-$standard_clock_in = new DateTime($settings['standard_clock_in']);
-$standard_clock_out = new DateTime($settings['standard_clock_out']);
+$standard_clock_in = new Verta($settings['standard_clock_in']);
+$standard_clock_out = new Verta($settings['standard_clock_out']);
 
 // پردازش فرم
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // برای ثبت زمان ورود
     if (isset($_POST['clock_in'])) {
-        // بررسی اینکه آیا کاربر زمان خروج قبلی را ثبت کرده است یا خیر
-        $sql = "SELECT id FROM work_time WHERE user_id = ? AND clock_in IS NOT NULL AND clock_out IS NULL ORDER BY id DESC LIMIT 1";
-        $stmt = $db->prepare($sql);
-        $stmt->bind_param('i', $user_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $work_time = $result->fetch_assoc();
+        $work_time = getLastUnclockedWorkTime($db, $user_id);
+
+        date_default_timezone_set('Asia/Tehran');         // تنظیم ساعت بر تهران
+        $time = date('Y-m-d H:i:s');
 
         if ($work_time) {
-            // اگر رکوردی با زمان خروج ثبت نشده وجود دارد، پیام خطا نمایش داده می‌شود
             $errors['clock_in'] = "You have not clocked out yet. Please clock out before clocking in again.";
         } else {
-            // ثبت زمان ورود جدید
-            $sql = "INSERT INTO work_time (user_id, clock_in, date) VALUES (?, NOW(), CURDATE())";
+            $clock_in_shamsi = (new Verta())->format('Y-m-d H:i:s'); // زمان ورود به شمسی
+            $sql = "INSERT INTO work_time (user_id, clock_in, date) VALUES (?, ?, CURDATE())";
             $stmt = $db->prepare($sql);
-            $stmt->bind_param('i', $user_id);
+            $stmt->bind_param('ss', $user_id, $clock_in_shamsi);
 
             if ($stmt->execute()) {
                 $success['message'] = "The login time was successfully registered.";
@@ -61,44 +51,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // برای ثبت زمان خروج
     if (isset($_POST['clock_out'])) {
         $report = $_POST['report'];
 
-        // بررسی اینکه گزارش نوشته شده است یا خیر
         if (empty($report)) {
             $errors['report'] = 'Writing report is necessary';
         } else {
-            // پیدا کردن آخرین رکورد با زمان ورود ثبت شده و زمان خروج خالی برای تاریخ امروز
-            $sql = "SELECT id, clock_in FROM work_time WHERE user_id = ? AND clock_in IS NOT NULL AND clock_out IS NULL AND date = CURDATE() ORDER BY id DESC LIMIT 1";
-            $stmt = $db->prepare($sql);
-            $stmt->bind_param('i', $user_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $work_time = $result->fetch_assoc();
+            $work_time = getCurrentWorkTime($db, $user_id);
+
+            date_default_timezone_set('Asia/Tehran');         // تنظیم ساعت بر تهران
+            $time = date('Y-m-d H:i:s');
+
 
             if ($work_time) {
                 $work_time_id = $work_time['id'];
-                $clock_in = new DateTime($work_time['clock_in']);
-                $clock_out = new DateTime(); // زمان خروج فعلی
+                $clock_in = new Verta($work_time['clock_in']);
+                $clock_out = new Verta(); // زمان خروج فعلی به شمسی
 
-                // محاسبه تأخیر در ورود
-                $delay_in = max($clock_in->getTimestamp() - $standard_clock_in->getTimestamp(), 0);
+                $delay_in = max($clock_in->timestamp - $standard_clock_in->timestamp, 0);
+                $delay_out = max($standard_clock_out->timestamp - $clock_out->timestamp, 0);
 
-                // محاسبه تأخیر در خروج
-                $delay_out = max($standard_clock_out->getTimestamp() - $clock_out->getTimestamp(), 0);
-
-                // محاسبه تأخیر کل
                 $total_delay = $delay_in + $delay_out;
                 $total_delay_formatted = gmdate('H:i:s', $total_delay);
 
-                // ثبت زمان خروج و گزارش
-                $sql = "UPDATE work_time SET clock_out = NOW(), report = ? WHERE id = ?";
+                $clock_out_shamsi = $clock_out->format('Y-m-d H:i:s'); // زمان خروج به شمسی
+
+                $sql = "UPDATE work_time SET clock_out = ?, report = ? WHERE id = ?";
                 $stmt = $db->prepare($sql);
-                $stmt->bind_param('si', $report, $work_time_id);
+                $stmt->bind_param('ssi', $clock_out_shamsi, $report, $work_time_id);
+
+                date_default_timezone_set('Asia/Tehran');         // تنظیم ساعت بر تهران
+                $time = date('Y-m-d H:i:s');
 
                 if ($stmt->execute()) {
-                    // ثبت تأخیر در جدول delay_time
                     $sql = "INSERT INTO delay_time (date, total_delay, user_id, work_time_id) VALUES (CURDATE(), ?, ?, ?)";
                     $stmt = $db->prepare($sql);
                     $stmt->bind_param('sii', $total_delay_formatted, $user_id, $work_time_id);
@@ -118,10 +103,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// واکشی داده‌های تایم ورود و خروج
-$query = "SELECT * FROM work_time WHERE user_id = ? ORDER BY date DESC";
-$stmt = $db->prepare($query);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$work_times = $stmt->get_result();
+$work_times = getWorkTimesByUserId($db, $user_id);
+
 ?>

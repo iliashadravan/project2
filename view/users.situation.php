@@ -100,45 +100,48 @@ require_once '../controller/users.situation.php';
         cursor: pointer;
     }
     .btn.deactivate {
-        background-color:#28a745 ;
+        background-color: #dc3545;
     }
     .btn.activate {
-        background-color: #dc3545;
+        background-color: #28a745;
     }
     .sidebar {
         width: 200px;
-        background-color: #333;
-        color: white;
+        background-color: #343a40;
+        color: #fff;
         padding: 20px;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
         height: 100vh;
         position: fixed;
         top: 0;
         left: 0;
-        overflow-x: auto;
+        overflow-x: hidden;
+        transition: all 0.3s;
     }
-
+    .sidebar:hover {
+        width: 230px;
+    }
     .sidebar h2 {
         color: #fff;
         font-size: 1.2em;
         margin-bottom: 20px;
     }
-
     .sidebar a {
         color: #ddd;
         text-decoration: none;
         display: block;
         margin: 15px 0;
         font-size: 1.1em;
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
     }
 
     .sidebar a:hover {
         color: #fff;
-        background-color: #555;
-        padding: 5px;
-        border-radius: 4px;
-        transition: all 0.4s;
+        background-color: #495057;
     }
+
 
     .btn.edit {
         color: #000; /* سیاه */
@@ -197,7 +200,7 @@ require_once '../controller/users.situation.php';
         <?php foreach ($users as $user): ?>
             <tr>
                 <td><?php echo htmlspecialchars($user['firstname']) . ' ' . htmlspecialchars($user['lastname']); ?></td>
-                <td><?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?></td>
+                <td><?php echo $user['is_active'] ? 'Inactive' : 'Active'; ?></td>
                 <td><a href="edit.users.php?id=<?php echo $user['id']; ?>" class="btn edit">Edit</a></td>
                 <td>
                     <?php if ($user['is_admin'] && !$user['is_active']): ?>
@@ -205,12 +208,12 @@ require_once '../controller/users.situation.php';
                     <?php elseif ($user['is_active']): ?>
                         <form method="POST" action="" style="display:inline;">
                             <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                            <button type="submit" name="deactivate_user" class="btn deactivate">Deactivate</button>
+                            <button type="submit" name="deactivate_user" class="btn deactivate">Activate</button>
                         </form>
                     <?php else: ?>
                         <form method="POST" action="" style="display:inline;">
                             <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                            <button type="submit" name="activate_user" class="btn activate">Activate</button>
+                            <button type="submit" name="activate_user" class="btn activate">Deactivate</button>
                         </form>
                     <?php endif; ?>
                 </td>

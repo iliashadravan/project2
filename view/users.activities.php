@@ -1,5 +1,5 @@
 <?php
-global $month_names, $total_delay_time, $total_work_time, $month_name, $target_month, $target_year;
+global $delay_times, $work_times, $user_id, $persian_month_name, $persian_year, $target_month, $target_year;
 require_once '../controller/users.activities.php';
 ?>
 <!DOCTYPE html>
@@ -7,171 +7,186 @@ require_once '../controller/users.activities.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monthly report</title>
+    <title>گزارش زمانی</title>
     <style>
         body {
-            font-family: 'Tahoma', sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
             color: #333;
-            margin: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
             padding: 20px;
-            line-height: 1.6;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            color: #4CAF50;
-            margin: 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #4CAF50;
-            display: inline-block;
-        }
-
-        .select-month-year {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 50px;
+        }
+        .header {
+            background-color: #3f51b5; /* Bootstrap primary color */
+            color: #fff;
+            padding: 15px 25px;
+            text-align: center;
+            border-radius: 10px;
             margin-bottom: 20px;
-            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
-        label {
+        form {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
             font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
         }
-
-        select {
-            padding: 5px;
+        .form-group select, .form-group button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             font-size: 16px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
         }
-
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+        .form-group button {
+            background-color: #3f51b5; /* Bootstrap primary color */
             color: #fff;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            transition: background-color 0.3s;
         }
-
-        button:hover {
-            background-color: #45a049;
+        .form-group button:hover {
+            background-color: #407be9; /* Darker blue */
         }
-
         table {
             width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
             border-collapse: collapse;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
             overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
-        th, td {
-            padding: 12px 15px;
+        table th, table td {
+            padding: 15px;
             text-align: center;
             border-bottom: 1px solid #ddd;
         }
-
-        th {
-            background-color: #4CAF50;
+        table th {
+            background-color: #3f51b5; /* Bootstrap primary color */
             color: #fff;
         }
-
-        tr:hover {
-            background-color: #f5f5f5;
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
         }
-
-        p {
-            text-align: center;
+        .date-display {
+            font-family: 'Tahoma', sans-serif;
             font-size: 18px;
-            margin: 10px 0;
+            color: #007bff; /* Bootstrap primary color */
+            background-color: #e9f5ff;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
         .sidebar {
             width: 200px;
-            background-color: #333;
-            color: white;
+            background-color: #343a40;
+            color: #fff;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            overflow-x: auto;
+            overflow-x: hidden;
+            transition: all 0.3s;
         }
-
+        .sidebar:hover {
+            width: 230px;
+        }
         .sidebar h2 {
             color: #fff;
             font-size: 1.2em;
             margin-bottom: 20px;
         }
-
         .sidebar a {
             color: #ddd;
             text-decoration: none;
             display: block;
             margin: 15px 0;
             font-size: 1.1em;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
         }
-
         .sidebar a:hover {
             color: #fff;
-            background-color: #555;
-            padding: 5px;
-            border-radius: 4px;
-            transition: all 0.4s;
+            background-color: #495057;
         }
     </style>
 </head>
 <body>
-<?php include 'sidebar.php'; ?>
-<div class="header">
-    <h1>Monthly report</h1>
+<?php include '../view/sidebar.php'; ?>
+<div class="container">
+    <div class="header">
+        <h1>time report</h1>
+    </div>
+    <form method="POST" action="" class="select-month-year">
+        <div class="form-group">
+            <label for="month">Select month:</label>
+            <select id="month" name="month">
+                <?php foreach (range(1, 12) as $month) : ?>
+                    <?php
+                    $month_num = str_pad($month, 2, '0', STR_PAD_LEFT);
+                    $jalali_month = convertToJalali($target_year, $month_num)['month'];
+                    ?>
+                    <option value="<?= $month_num ?>" <?= $month_num == $target_month ? 'selected' : '' ?>><?= $jalali_month ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="year">Select year:</label>
+            <select id="year" name="year">
+                <?php foreach (range(date('Y'), date('Y') - 5) as $year) : ?>
+                    <?php
+                    $jalali_year = convertToJalali($year, '01')['year'];
+                    ?>
+                    <option value="<?= $year ?>" <?= $year == $target_year ? 'selected' : '' ?>><?= $jalali_year ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <button type="submit">Show report</button>
+        </div>
+    </form>
+
+    <p class="date-display">month: <?= htmlspecialchars($persian_month_name) ?>، year: <?= htmlspecialchars($persian_year) ?></p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ساعات کاری</th>
+            <th>ساعات تأخیر</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><?= htmlspecialchars($work_times[$user_id]) ?></td>
+            <td><?= htmlspecialchars($delay_times[$user_id]) ?></td>
+        </tr>
+        </tbody>
+    </table>
 </div>
-<form method="POST" action="" class="select-month-year">
-    <label for="month">Select month:</label>
-    <select id="month" name="month">
-        <?php foreach ($month_names as $key => $name) : ?>
-            <option value="<?= $key ?>" <?= $key == $target_month ? 'selected' : '' ?>><?= $name ?></option>
-        <?php endforeach; ?>
-    </select>
-
-    <label for="year">Select year:</label>
-    <select id="year" name="year">
-        <?php for ($i = date('Y'); $i >= date('Y') - 4; $i--) : ?>
-            <option value="<?= $i ?>" <?= $i == $target_year ? 'selected' : '' ?>><?= $i ?></option>
-        <?php endfor; ?>
-    </select>
-    <button type="submit">Show report</button>
-</form>
-
-<p>month: <?= $month_name ?>, year: <?= $target_year ?></p>
-
-<table>
-    <thead>
-    <tr>
-        <th>Description</th>
-        <th>Time</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Total working hours</td>
-        <td><?= $total_work_time ?></td>
-    </tr>
-    <tr>
-        <td>Total hours of delay</td>
-        <td><?= $total_delay_time ?></td>
-    </tr>
-    </tbody>
-</table>
 </body>
 </html>

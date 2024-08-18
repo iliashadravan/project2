@@ -1,70 +1,86 @@
 <?php
+require_once '../vendor/autoload.php'; // بارگذاری autoload Composer
+
+use Hekmatinasser\Verta\Verta;
+
+// اتصال به پایگاه داده
 global $db;
-require_once 'db.php';
+require_once '../controller/db.php';
+require_once '../controller/function.query.php';
 
-$target_year = isset($_POST['year']) ? $_POST['year'] : date('Y'); // Selected year or current year
-$target_month = isset($_POST['month']) ? $_POST['month'] : date('m'); // Selected month or current month
-$user_id = $_SESSION['user_id'];
+// شروع جلسه برای دسترسی به اطلاعات کاربر لاگین شده
+$user_id = isset($_SESSION['user_id']) ? intval($_SESSION['user_id']) : 0;
+if ($user_id === 0) {
+    die('کاربر لاگین نکرده است.');
+}
 
-// Fetch total work time for the selected month and year
+$errors = [];
+$success = [];
+
+// دریافت ماه و سال انتخاب شده از فرم یا استفاده از مقادیر پیش‌فرض
+$target_year = isset($_POST['year']) ? intval($_POST['year']) : date('Y');
+$target_month = isset($_POST['month']) ? str_pad(intval($_POST['month']), 2, '0', STR_PAD_LEFT) : date('m');
+
+// تبدیل سال و ماه میلادی به شمسی
+function convertToJalali($year, $month) {
+    $date = new Verta("$year-$month-01");
+    return [
+        'year' => $date->format('Y'),
+        'month' => $date->format('F')
+    ];
+}
+
+$jalali_date = convertToJalali($target_year, $target_month);
+$persian_year = $jalali_date['year'];
+$persian_month_name = $jalali_date['month'];
+
+// دریافت مجموع ساعت کاری و تأخیر برای کاربر لاگین شده در ماه و سال انتخاب شده
 $query_work = "
     SELECT 
-        DATE_FORMAT(date, '%Y-%m') AS month, 
+        user_id,
         SUM(TIME_TO_SEC(TIMEDIFF(clock_out, clock_in))) AS total_work_seconds
     FROM work_time 
-    WHERE user_id = ? AND DATE_FORMAT(date, '%Y-%m') = ?
-    GROUP BY DATE_FORMAT(date, '%Y-%m')
-    ORDER BY month
+    WHERE user_id = ? AND DATE_FORMAT(date, '%Y-%m') = ? 
+    GROUP BY user_id
 ";
-$target_date = $target_year . '-' . $target_month;
 $stmt = $db->prepare($query_work);
+$target_date = $target_year . '-' . $target_month;
 $stmt->bind_param('is', $user_id, $target_date);
 $stmt->execute();
 $work_data = $stmt->get_result();
 
-$total_work_seconds = 0;
-if ($row = $work_data->fetch_assoc()) {
-    $total_work_seconds = $row['total_work_seconds'];
+if ($work_data->num_rows > 0) {
+    while ($row = $work_data->fetch_assoc()) {
+        $work_times[$row['user_id']] = gmdate('H:i:s', $row['total_work_seconds']);
+    }
+} else {
+    $work_times[$user_id] = 'N/A';
 }
 
-// Fetch total delay time for the selected month and year
 $query_delay = "
     SELECT 
-        DATE_FORMAT(date, '%Y-%m') AS month, 
+        user_id,
         SUM(TIME_TO_SEC(total_delay)) AS total_delay_seconds
     FROM delay_time 
     WHERE user_id = ? AND DATE_FORMAT(date, '%Y-%m') = ?
-    GROUP BY DATE_FORMAT(date, '%Y-%m') 
-    ORDER BY month
+    GROUP BY user_id
 ";
 $stmt = $db->prepare($query_delay);
 $stmt->bind_param('is', $user_id, $target_date);
 $stmt->execute();
 $delay_data = $stmt->get_result();
 
-$total_delay_seconds = 0;
-if ($row = $delay_data->fetch_assoc()) {
-    $total_delay_seconds = $row['total_delay_seconds'];
+if ($delay_data->num_rows > 0) {
+    while ($row = $delay_data->fetch_assoc()) {
+        $delay_times[$row['user_id']] = gmdate('H:i:s', $row['total_delay_seconds']);
+    }
+} else {
+    $delay_times[$user_id] = 'N/A';
 }
 
-// Convert seconds to H:i:s format
-$total_work_time = gmdate('H:i:s', $total_work_seconds);
-$total_delay_time = gmdate('H:i:s', $total_delay_seconds);
-
-$month_names = [
-    '01' => 'January',
-    '02' => 'February',
-    '03' => 'March',
-    '04' => 'April',
-    '05' => 'May',
-    '06' => 'June',
-    '07' => 'July',
-    '08' => 'August',
-    '09' => 'September',
-    '10' => 'October',
-    '11' => 'November',
-    '12' => 'December'
-];
-
-$month_name = $month_names[$target_month];
+// دریافت اطلاعات کاربر لاگین شده
+$user = getUserById($user_id, $db);
+if (!$user) {
+    die('اطلاعات کاربر یافت نشد.');
+}
 ?>
