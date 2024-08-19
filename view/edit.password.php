@@ -80,6 +80,7 @@ require_once '../controller/edit.password.php';
     </style>
 </head>
 <body>
+<?php include 'sidebar.php'; ?>
 <div class="edit-password-container">
     <h1>Edit password</h1>
     <form method="post">

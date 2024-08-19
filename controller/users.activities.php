@@ -34,14 +34,16 @@ $jalali_date = convertToJalali($target_year, $target_month);
 $persian_year = $jalali_date['year'];
 $persian_month_name = $jalali_date['month'];
 
-// دریافت مجموع ساعت کاری و تأخیر برای کاربر لاگین شده در ماه و سال انتخاب شده
+$weekend_multiplier = 1.4;
+
+// دریافت ساعت کاری و تأخیر برای کاربر لاگین شده
 $query_work = "
     SELECT 
         user_id,
-        SUM(TIME_TO_SEC(TIMEDIFF(clock_out, clock_in))) AS total_work_seconds
+        DATE(date) AS work_date,
+        TIME_TO_SEC(TIMEDIFF(clock_out, clock_in)) AS work_seconds
     FROM work_time 
-    WHERE user_id = ? AND DATE_FORMAT(date, '%Y-%m') = ? 
-    GROUP BY user_id
+    WHERE user_id = ? AND DATE_FORMAT(date, '%Y-%m') = ?
 ";
 $stmt = $db->prepare($query_work);
 $target_date = $target_year . '-' . $target_month;
@@ -49,36 +51,57 @@ $stmt->bind_param('is', $user_id, $target_date);
 $stmt->execute();
 $work_data = $stmt->get_result();
 
-if ($work_data->num_rows > 0) {
-    while ($row = $work_data->fetch_assoc()) {
-        $work_times[$row['user_id']] = gmdate('H:i:s', $row['total_work_seconds']);
+$total_work_seconds = 0;
+$holiday_work_seconds = 0;
+$regular_work_seconds = 0;
+
+while ($row = $work_data->fetch_assoc()) {
+    $work_seconds = $row['work_seconds'];
+    $work_date = new DateTime($row['work_date']);
+    $day_of_week = $work_date->format('w'); // 0 (برای یکشنبه) تا 6 (برای شنبه)
+
+    if ($day_of_week == 5 || $day_of_week == 6) { // جمعه یا شنبه
+        $holiday_work_seconds += $work_seconds * $weekend_multiplier;
+    } else {
+        $regular_work_seconds += $work_seconds;
     }
-} else {
-    $work_times[$user_id] = 'N/A';
 }
 
+$total_work_seconds = $regular_work_seconds + $holiday_work_seconds;
+
+// تبدیل زمان‌ها به فرمت H:i:s
+$final_work_time = gmdate('H:i:s', $total_work_seconds);
+$regular_work_time = gmdate('H:i:s', $regular_work_seconds);
+$holiday_work_time = gmdate('H:i:s', $holiday_work_seconds);
+
+// دریافت مجموع ساعات تأخیر (فقط روزهای غیرتعطیل)
 $query_delay = "
     SELECT 
         user_id,
-        SUM(TIME_TO_SEC(total_delay)) AS total_delay_seconds
+        SUM(TIME_TO_SEC(total_delay)) AS total_delay_seconds,
+        DATE(date) AS delay_date
     FROM delay_time 
     WHERE user_id = ? AND DATE_FORMAT(date, '%Y-%m') = ?
-    GROUP BY user_id
+    GROUP BY user_id, DATE(date)
 ";
 $stmt = $db->prepare($query_delay);
 $stmt->bind_param('is', $user_id, $target_date);
 $stmt->execute();
 $delay_data = $stmt->get_result();
 
-if ($delay_data->num_rows > 0) {
-    while ($row = $delay_data->fetch_assoc()) {
-        $delay_times[$row['user_id']] = gmdate('H:i:s', $row['total_delay_seconds']);
+$delay_time = 0;
+while ($row = $delay_data->fetch_assoc()) {
+    $delay_date = new DateTime($row['delay_date']);
+    $day_of_week = $delay_date->format('w'); // 0 (برای یکشنبه) تا 6 (برای شنبه)
+
+    if ($day_of_week != 5 && $day_of_week != 6) { // اگر روز جمعه یا شنبه نباشد
+        $delay_time += $row['total_delay_seconds'];
     }
-} else {
-    $delay_times[$user_id] = 'N/A';
 }
 
-// دریافت اطلاعات کاربر لاگین شده
+$delay_time = gmdate('H:i:s', $delay_time);
+
+// دریافت اطلاعات کاربر
 $user = getUserById($user_id, $db);
 if (!$user) {
     die('اطلاعات کاربر یافت نشد.');

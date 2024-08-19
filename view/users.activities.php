@@ -1,5 +1,5 @@
 <?php
-global $delay_times, $work_times, $user_id, $persian_month_name, $persian_year, $target_month, $target_year;
+global $regular_work_time, $holiday_work_time, $final_work_time, $delay_time, $persian_month_name, $persian_year, $target_year, $target_month;
 require_once '../controller/users.activities.php';
 ?>
 <!DOCTYPE html>
@@ -67,7 +67,7 @@ require_once '../controller/users.activities.php';
             transition: background-color 0.3s;
         }
         .form-group button:hover {
-            background-color: #4980e7; /* Darker blue */
+            background-color: #5d8eea; /* Darker blue */
         }
         table {
             width: 100%;
@@ -139,21 +139,19 @@ require_once '../controller/users.activities.php';
     </form>
 
     <p class="date-display">month: <?= htmlspecialchars($persian_month_name) ?>، year: <?= htmlspecialchars($persian_year) ?></p>
-
-    <table>
-        <thead>
-        <tr>
-            <th>ساعات کاری</th>
-            <th>ساعات تأخیر</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td><?= htmlspecialchars($work_times[$user_id]) ?></td>
-            <td><?= htmlspecialchars($delay_times[$user_id]) ?></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+<table border="1">
+    <tr>
+        <th>Working hours on normal days</th>
+        <th>Working hours on holidays</th>
+        <th>Total working hours</th>
+        <th>Delay hours on normal days</th>
+    </tr>
+    <tr>
+        <td><?= htmlspecialchars($regular_work_time) ?></td>
+        <td><?= htmlspecialchars($holiday_work_time) ?></td>
+        <td><?= htmlspecialchars($final_work_time) ?></td>
+        <td><?= htmlspecialchars($delay_time) ?></td>
+    </tr>
+</table>
 </body>
 </html>

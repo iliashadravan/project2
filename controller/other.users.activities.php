@@ -7,6 +7,7 @@ use Hekmatinasser\Verta\Verta;
 global $db;
 require_once 'db.php';
 require_once 'function.query.php';
+
 $errors = [];
 $success = [];
 
@@ -27,24 +28,17 @@ $jalali_date = convertToJalali($target_year, $target_month);
 $persian_year = $jalali_date['year'];
 $persian_month_name = $jalali_date['month'];
 
-// پردازش درخواست‌های فعال و غیرفعال کردن کاربران
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['deactivate_user']) || isset($_POST['activate_user'])) {
-        $user_id = intval($_POST['user_id']);
+// ضریب ساعات کاری در روزهای تعطیل (جمعه و شنبه)
+$weekend_multiplier = 1.4;
 
-        // دریافت اطلاعات کاربر از پایگاه داده
-        $user_data = getUserStatusById($user_id, $db);
-    }
-}
-
-// دریافت مجموع ساعت کاری و تاخیر برای هر کاربر در ماه و سال انتخاب شده
+// پردازش ساعات کاری
 $query_work = "
     SELECT 
         user_id,
-        SUM(TIME_TO_SEC(TIMEDIFF(clock_out, clock_in))) AS total_work_seconds
+        TIMESTAMPDIFF(SECOND, clock_in, clock_out) AS work_seconds,
+        DATE(date) AS work_date
     FROM work_time 
     WHERE DATE_FORMAT(date, '%Y-%m') = ? 
-    GROUP BY user_id
 ";
 $stmt = $db->prepare($query_work);
 $target_date = $target_year . '-' . $target_month;
@@ -53,17 +47,38 @@ $stmt->execute();
 $work_data = $stmt->get_result();
 
 $work_times = [];
+$holiday_work_times = [];
+
 while ($row = $work_data->fetch_assoc()) {
-    $work_times[$row['user_id']] = gmdate('H:i:s', $row['total_work_seconds']);
+    $user_id = $row['user_id'];
+    $work_seconds = $row['work_seconds'];
+    $work_date = new DateTime($row['work_date']);
+    $day_of_week = $work_date->format('w'); // 0 (برای یکشنبه) تا 6 (برای شنبه)
+
+    if ($day_of_week == 5 || $day_of_week == 6) { // جمعه (5) یا شنبه (6)
+        $holiday_work_seconds = $work_seconds * $weekend_multiplier;
+        if (!isset($holiday_work_times[$user_id])) {
+            $holiday_work_times[$user_id] = 0;
+        }
+        $holiday_work_times[$user_id] += $holiday_work_seconds;
+        $work_seconds = $holiday_work_seconds; // برای محاسبات دیگر ساعات کاری اصلی
+    }
+
+    if (!isset($work_times[$user_id])) {
+        $work_times[$user_id] = 0;
+    }
+    $work_times[$user_id] += $work_seconds;
 }
 
+// پردازش ساعات تأخیر (فقط برای روزهای کاری)
 $query_delay = "
     SELECT 
         user_id,
-        SUM(TIME_TO_SEC(total_delay)) AS total_delay_seconds
+        SUM(TIME_TO_SEC(total_delay)) AS total_delay_seconds,
+        DATE(date) AS delay_date
     FROM delay_time 
     WHERE DATE_FORMAT(date, '%Y-%m') = ?
-    GROUP BY user_id
+    GROUP BY user_id, DATE(date)
 ";
 $stmt = $db->prepare($query_delay);
 $stmt->bind_param('s', $target_date);
@@ -71,8 +86,26 @@ $stmt->execute();
 $delay_data = $stmt->get_result();
 
 $delay_times = [];
+$holiday_delay_times = [];
+
 while ($row = $delay_data->fetch_assoc()) {
-    $delay_times[$row['user_id']] = gmdate('H:i:s', $row['total_delay_seconds']);
+    $user_id = $row['user_id'];
+    $delay_seconds = $row['total_delay_seconds'];
+    $delay_date = new DateTime($row['delay_date']);
+    $day_of_week = $delay_date->format('w'); // 0 (برای یکشنبه) تا 6 (برای شنبه)
+
+    // فقط برای روزهای کاری (غیر تعطیل)
+    if ($day_of_week != 5 && $day_of_week != 6) { // غیر از جمعه و شنبه
+        if (!isset($delay_times[$user_id])) {
+            $delay_times[$user_id] = 0;
+        }
+        $delay_times[$user_id] += $delay_seconds;
+    } else {
+        if (!isset($holiday_delay_times[$user_id])) {
+            $holiday_delay_times[$user_id] = 0;
+        }
+        $holiday_delay_times[$user_id] += $delay_seconds;
+    }
 }
 
 $users = getAllUsers($db);
