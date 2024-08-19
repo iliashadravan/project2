@@ -66,7 +66,7 @@ require_once '../controller/users.activities.php';
             transition: background-color 0.3s;
         }
         .form-group button:hover {
-            background-color: #407be9; /* Darker blue */
+            background-color: #4980e7; /* Darker blue */
         }
         table {
             width: 100%;
