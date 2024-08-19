@@ -1,12 +1,13 @@
 <?php
-global $users, $target_year, $target_month, $persian_month_name, $persian_year;
+
+global $users, $persian_month_name, $persian_year, $target_month, $target_year;
 require_once '../controller/other.users.activities.php';
+
 ?>
 <!DOCTYPE html>
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>گزارش زمانی</title>
     <link rel="stylesheet" href="sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
     <style>
@@ -21,7 +22,7 @@ require_once '../controller/other.users.activities.php';
             width: 80%;
             margin: 0 auto;
             padding: 20px;
-            margin-left: 300px;
+            margin-right: 50px;
         }
         .header {
             background-color: #4a4a4a; /* Slate gray */
@@ -37,8 +38,6 @@ require_once '../controller/other.users.activities.php';
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
-            width: 50%;
-            margin-left: 350px;
         }
         .form-group {
             display: flex;
@@ -78,6 +77,7 @@ require_once '../controller/other.users.activities.php';
             padding: 15px;
             text-align: center;
             border-bottom: 1px solid #ddd;
+            position: relative; /* برای موقعیت‌دهی tooltip */
         }
         table th {
             background-color: #4a4a4a; /* Slate gray */
@@ -86,31 +86,7 @@ require_once '../controller/other.users.activities.php';
         table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        .error, .success {
-            background-color: #fff;
-            padding: 10px;
-            border: 1px solid;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .error {
-            border-color: #dc3545;
-            color: #dc3545;
-        }
-        .success {
-            border-color: #28a745;
-            color: #28a745;
-        }
-        .btn {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            color: #fff;
-            cursor: pointer;
-        }
-
-
-        .date-display {
+            .date-display {
             font-family: 'Tahoma', sans-serif; /* فونت فارسی ساده */
             font-size: 18px;
             color: #4A90E2; /* رنگ متن */
@@ -122,16 +98,15 @@ require_once '../controller/other.users.activities.php';
             margin: 20px auto;
             width: fit-content;
         }
-
-
     </style>
 </head>
 <body>
 <?php include 'sidebar.php'; ?>
 <div class="container">
     <div class="header">
-        <h1>Time reports</h1>
+        <h1>Time report</h1>
     </div>
+
     <form method="POST" action="" class="select-month-year">
         <div class="form-group">
             <label for="month">Select month:</label>
@@ -163,21 +138,28 @@ require_once '../controller/other.users.activities.php';
 
     <p class="date-display">Month: <?= htmlspecialchars($persian_month_name) ?>، Year: <?= htmlspecialchars($persian_year) ?></p>
 
-
     <table>
         <thead>
         <tr>
-            <th>User</th>
-            <th>Working hours</th>
-            <th>Delay times</th>
+            <th>Users name</th>
+            <th>Working hours on normal day</th>
+            <th>Holidays working hours</th>
+            <th>delay hours (working day)</th>
+            <th>delay hours (holiday days)</th>
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($users as $user) : ?>
+        <?php foreach ($users as $user): ?>
             <tr>
                 <td><?php echo htmlspecialchars($user['firstname']) . ' ' . htmlspecialchars($user['lastname']); ?></td>
-                <td><?= htmlspecialchars($work_times[$user['id']] ?? 'N/A') ?></td>
-                <td><?= htmlspecialchars($delay_times[$user['id']] ?? 'N/A') ?></td>
+                <td><?= isset($work_times[$user['id']]) ? htmlspecialchars(gmdate('H:i:s', $work_times[$user['id']])) : 'N/A' ?></td>
+                <td>
+                    <div class="tooltip">
+                        <?= isset($holiday_work_times[$user['id']]) ? htmlspecialchars(gmdate('H:i:s', $holiday_work_times[$user['id']])) : 'N/A' ?>
+                    </div>
+                </td>
+                <td><?= isset($delay_times[$user['id']]) ? htmlspecialchars(gmdate('H:i:s', $delay_times[$user['id']])) : 'N/A' ?></td>
+                <td><?= isset($holiday_delay_times[$user['id']]) ? htmlspecialchars(gmdate('H:i:s', $holiday_delay_times[$user['id']])) : 'N/A' ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
