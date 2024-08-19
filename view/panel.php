@@ -10,6 +10,8 @@ use Hekmatinasser\Verta\Verta;
 <head>
     <meta charset="UTF-8">
     <title>dashboard</title>
+    <link rel="stylesheet" href="sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
+
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -130,41 +132,7 @@ use Hekmatinasser\Verta\Verta;
         button:hover {
             background-color: #45a049;
         }
-        .sidebar {
-            width: 200px;
-            background-color: #343a40;
-            color: #fff;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            overflow-x: hidden;
-            transition: all 0.3s;
-        }
-        .sidebar:hover {
-            width: 230px;
-        }
-        .sidebar h2 {
-            color: #fff;
-            font-size: 1.2em;
-            margin-bottom: 20px;
-        }
-        .sidebar a {
-            color: #ddd;
-            text-decoration: none;
-            display: block;
-            margin: 15px 0;
-            font-size: 1.1em;
-            padding: 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        .sidebar a:hover {
-            color: #fff;
-            background-color: #495057;
-        }
+
 
     </style>
 </head>
