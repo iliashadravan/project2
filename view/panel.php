@@ -1,7 +1,8 @@
 <?php
-global $work_times, $db;
+global $work_times, $db, $user_id;
 require_once '../controller/panel.php';
 require_once '../vendor/autoload.php';
+require_once '../controller/function.query.php';
 use Hekmatinasser\Verta\Verta;
 
 ?>
@@ -150,15 +151,8 @@ use Hekmatinasser\Verta\Verta;
 
     <!-- فرم ثبت زمان خروج -->
     <?php
-    // بررسی اینکه آیا زمان ورود ثبت شده است یا خیر
-    $sql = "SELECT id FROM work_time WHERE user_id = ? AND clock_in IS NOT NULL AND clock_out IS NULL AND date = CURDATE() ORDER BY id DESC LIMIT 1";
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param('i', $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $clock_in_record = $result->fetch_assoc();
+    $clock_in_record = getCurrentWorkTime($db, $user_id);
     ?>
-
     <?php if ($clock_in_record): ?>
         <form method="POST" action="">
             <div class="form-group">

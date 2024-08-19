@@ -122,7 +122,7 @@ require_once '../controller/edit.users.php';
         <input type="password" id="password" name="password">
 
         <button type="submit">Update User</button>
-        <a href="other.users.activities.php">Back to panel</a>
+        <a href="users.situation.php">Back to panel</a>
     </form>
 </div>
 </body>

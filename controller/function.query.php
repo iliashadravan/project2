@@ -85,17 +85,15 @@ function getAllUsers($db) {
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function getWorkData($db, $query_work, $user_id, $target_date) {
-    $stmt = $db->prepare($query_work);
-    $stmt->bind_param('is', $user_id, $target_date);
-    $stmt->execute();
-    $work_data = $stmt->get_result();
-    return $work_data;
-}
-function getDelayData($db, $query_delay, $user_id, $target_date) {
-    $stmt = $db->prepare($query_delay);
-    $stmt->bind_param('is', $user_id, $target_date);
-    $stmt->execute();
-    $delay_data = $stmt->get_result();
-    return $delay_data;
+
+function getUserAdminStatus($db, $user_id) {
+    $query = "SELECT is_admin FROM users WHERE id = ?";
+    if ($stmt = $db->prepare($query)) {
+        $stmt->bind_param('i', $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        return $user;
+    }
 }
