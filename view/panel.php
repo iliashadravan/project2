@@ -1,10 +1,9 @@
 <?php
-global $work_times, $db, $user_id;
+global $work_times, $db, $user_id, $user;
 require_once '../controller/panel.php';
 require_once '../vendor/autoload.php';
 require_once '../controller/function.query.php';
 use Hekmatinasser\Verta\Verta;
-
 ?>
 <!DOCTYPE html>
 <html lang="fa">
