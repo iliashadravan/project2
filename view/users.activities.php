@@ -1,5 +1,5 @@
 <?php
-global $regular_work_time, $holiday_work_time, $final_work_time, $delay_time, $persian_month_name, $persian_year, $target_year, $target_month;
+global $regular_work_time, $holiday_work_time, $final_work_time, $delay_time, $persian_month_name, $persian_year, $target_year, $target_month, $holiday_work_time_without_multiplier;
 require_once '../controller/users.activities.php';
 ?>
 <!DOCTYPE html>
@@ -139,19 +139,26 @@ require_once '../controller/users.activities.php';
     </form>
 
     <p class="date-display">month: <?= htmlspecialchars($persian_month_name) ?>، year: <?= htmlspecialchars($persian_year) ?></p>
-<table border="1">
-    <tr>
-        <th>Working hours on normal days</th>
-        <th>Working hours on holidays</th>
-        <th>Total working hours</th>
-        <th>Delay hours on normal days</th>
-    </tr>
-    <tr>
-        <td><?= htmlspecialchars($regular_work_time) ?></td>
-        <td><?= htmlspecialchars($holiday_work_time) ?></td>
-        <td><?= htmlspecialchars($final_work_time) ?></td>
-        <td><?= htmlspecialchars($delay_time) ?></td>
-    </tr>
-</table>
+    <table>
+        <tr>
+            <th>نوع ساعت کاری</th>
+            <th>مقدار</th>
+        </tr>
+        <tr>
+            <td>ساعات کاری عادی</td>
+            <td><?php echo htmlspecialchars($regular_work_time); ?></td>
+        </tr>
+        <tr>
+            <td>ساعات کاری در تعطیلات (بدون ضریب)</td>
+            <td><?php echo htmlspecialchars($holiday_work_time_without_multiplier); ?></td>
+        </tr>
+        <tr>
+            <td>مجموع ساعات کاری</td>
+            <td><?php echo htmlspecialchars($final_work_time); ?></td>
+        </tr>
+    </table>
+
+    <h2>مجموع ساعت‌های تأخیر</h2>
+    <p><?php echo htmlspecialchars($delay_time); ?></p>
 </body>
 </html>

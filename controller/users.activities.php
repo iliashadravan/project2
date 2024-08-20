@@ -54,6 +54,7 @@ $work_data = $stmt->get_result();
 $total_work_seconds = 0;
 $holiday_work_seconds = 0;
 $regular_work_seconds = 0;
+$holiday_work_seconds_without_multiplier = 0; // اضافه کردن متغیر برای ذخیره ساعات بدون ضریب
 
 while ($row = $work_data->fetch_assoc()) {
     $work_seconds = $row['work_seconds'];
@@ -61,18 +62,28 @@ while ($row = $work_data->fetch_assoc()) {
     $day_of_week = $work_date->format('w'); // 0 (برای یکشنبه) تا 6 (برای شنبه)
 
     if ($day_of_week == 5 || $day_of_week == 6) { // جمعه یا شنبه
-        $holiday_work_seconds += $work_seconds * $weekend_multiplier;
+        $holiday_work_seconds_without_multiplier += $work_seconds; // ذخیره ساعات بدون ضریب
+        $holiday_work_seconds += $work_seconds * $weekend_multiplier; // اعمال ضریب 1.4
     } else {
         $regular_work_seconds += $work_seconds;
     }
 }
 
+// تابع تبدیل ثانیه‌ها به فرمت H:i:s
+function formatSeconds($seconds) {
+    $hours = floor($seconds / 3600);
+    $minutes = floor(($seconds % 3600) / 60);
+    $seconds = $seconds % 60;
+    return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+}
+
 $total_work_seconds = $regular_work_seconds + $holiday_work_seconds;
 
-// تبدیل زمان‌ها به فرمت H:i:s
-$final_work_time = gmdate('H:i:s', $total_work_seconds);
-$regular_work_time = gmdate('H:i:s', $regular_work_seconds);
-$holiday_work_time = gmdate('H:i:s', $holiday_work_seconds);
+// تبدیل زمان‌ها به فرمت H:i:s با استفاده از تابع جدید
+$final_work_time = formatSeconds($total_work_seconds);
+$regular_work_time = formatSeconds($regular_work_seconds);
+$holiday_work_time = formatSeconds($holiday_work_seconds);
+$holiday_work_time_without_multiplier = formatSeconds($holiday_work_seconds_without_multiplier); // نمایش ساعت بدون ضریب
 
 // دریافت مجموع ساعات تأخیر (فقط روزهای غیرتعطیل)
 $query_delay = "
@@ -89,17 +100,17 @@ $stmt->bind_param('is', $user_id, $target_date);
 $stmt->execute();
 $delay_data = $stmt->get_result();
 
-$delay_time = 0;
+$delay_time_seconds = 0;
 while ($row = $delay_data->fetch_assoc()) {
     $delay_date = new DateTime($row['delay_date']);
-    $day_of_week = $delay_date->format('w'); // 0 (برای یکشنبه) تا 6 (برای شنبه)
+    $day_of_week = $delay_date->format('w');
 
-    if ($day_of_week != 5 && $day_of_week != 6) { // اگر روز جمعه یا شنبه نباشد
-        $delay_time += $row['total_delay_seconds'];
+    if ($day_of_week != 5 && $day_of_week != 6) {
+        $delay_time_seconds += $row['total_delay_seconds'];
     }
 }
 
-$delay_time = gmdate('H:i:s', $delay_time);
+$delay_time = formatSeconds($delay_time_seconds);
 
 // دریافت اطلاعات کاربر
 $user = getUserById($user_id, $db);
