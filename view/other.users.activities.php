@@ -142,10 +142,9 @@ require_once '../controller/other.users.activities.php';
         <thead>
         <tr>
             <th>Users name</th>
-            <th>Working hours on normal day</th>
+            <th>Total working hours</th>
             <th>Holidays working hours</th>
             <th>delay hours (working day)</th>
-            <th>delay hours (holiday days)</th>
         </tr>
         </thead>
         <tbody>
@@ -155,11 +154,10 @@ require_once '../controller/other.users.activities.php';
                 <td><?= isset($work_times[$user['id']]) ? htmlspecialchars(gmdate('H:i:s', $work_times[$user['id']])) : 'N/A' ?></td>
                 <td>
                     <div class="tooltip">
-                        <?= isset($holiday_work_times[$user['id']]) ? htmlspecialchars(gmdate('H:i:s', $holiday_work_times[$user['id']])) : 'N/A' ?>
+                        <?php echo formatSeconds(isset($holiday_work_times_without_multiplier[$user['id']]) ?($holiday_work_times_without_multiplier[$user['id']])  : 0); ?>
                     </div>
                 </td>
                 <td><?= isset($delay_times[$user['id']]) ? htmlspecialchars(gmdate('H:i:s', $delay_times[$user['id']])) : 'N/A' ?></td>
-                <td><?= isset($holiday_delay_times[$user['id']]) ? htmlspecialchars(gmdate('H:i:s', $holiday_delay_times[$user['id']])) : 'N/A' ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>

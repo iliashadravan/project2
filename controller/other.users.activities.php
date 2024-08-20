@@ -1,16 +1,13 @@
 <?php
-global $user;
+global $user, $db;
 require_once '../vendor/autoload.php'; // بارگذاری autoload Composer
-
-use Hekmatinasser\Verta\Verta;
-
-// اتصال به پایگاه داده
-global $db;
 require_once 'db.php';
 require_once 'function.query.php';
 
+use Hekmatinasser\Verta\Verta;
 $errors = [];
 $success = [];
+
 $user_phone_number = $_SESSION['phone_number'];
 $user = getUserByPhoneNumber($db, $user_phone_number);
 
@@ -18,6 +15,7 @@ if ($user['is_admin'] != 1) {
     header('Location: ../view/goback.html');
     exit;
 }
+
 // دریافت ماه و سال انتخاب شده از فرم یا استفاده از مقادیر پیش‌فرض
 $target_year = isset($_POST['year']) ? intval($_POST['year']) : date('Y');
 $target_month = isset($_POST['month']) ? str_pad(intval($_POST['month']), 2, '0', STR_PAD_LEFT) : date('m');
@@ -54,7 +52,7 @@ $stmt->execute();
 $work_data = $stmt->get_result();
 
 $work_times = [];
-$holiday_work_times = [];
+$holiday_work_times_without_multiplier = [];
 
 while ($row = $work_data->fetch_assoc()) {
     $user_id = $row['user_id'];
@@ -63,12 +61,12 @@ while ($row = $work_data->fetch_assoc()) {
     $day_of_week = $work_date->format('w'); // 0 (برای یکشنبه) تا 6 (برای شنبه)
 
     if ($day_of_week == 5 || $day_of_week == 6) { // جمعه (5) یا شنبه (6)
-        $holiday_work_seconds = $work_seconds * $weekend_multiplier;
-        if (!isset($holiday_work_times[$user_id])) {
-            $holiday_work_times[$user_id] = 0;
+        if (!isset($holiday_work_times_without_multiplier[$user_id])) {
+            $holiday_work_times_without_multiplier[$user_id] = 0;
         }
-        $holiday_work_times[$user_id] += $holiday_work_seconds;
-        $work_seconds = $holiday_work_seconds; // برای محاسبات دیگر ساعات کاری اصلی
+        $holiday_work_times_without_multiplier[$user_id] += $work_seconds; // ذخیره ساعات واقعی بدون ضریب
+
+        $work_seconds *= $weekend_multiplier; // اعمال ضریب 1.4 به ساعات کاری
     }
 
     if (!isset($work_times[$user_id])) {
@@ -107,12 +105,13 @@ while ($row = $delay_data->fetch_assoc()) {
             $delay_times[$user_id] = 0;
         }
         $delay_times[$user_id] += $delay_seconds;
-    } else {
-        if (!isset($holiday_delay_times[$user_id])) {
-            $holiday_delay_times[$user_id] = 0;
-        }
-        $holiday_delay_times[$user_id] += $delay_seconds;
     }
+}
+function formatSeconds($seconds) {
+    $hours = floor($seconds / 3600);
+    $minutes = floor(($seconds % 3600) / 60);
+    $seconds = $seconds % 60;
+    return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 }
 
 $users = getAllUsers($db);
