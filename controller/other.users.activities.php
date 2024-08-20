@@ -1,4 +1,5 @@
 <?php
+global $user;
 require_once '../vendor/autoload.php'; // بارگذاری autoload Composer
 
 use Hekmatinasser\Verta\Verta;
@@ -10,7 +11,13 @@ require_once 'function.query.php';
 
 $errors = [];
 $success = [];
+$user_phone_number = $_SESSION['phone_number'];
+$user = getUserByPhoneNumber($db, $user_phone_number);
 
+if ($user['is_admin'] != 1) {
+    header('Location: ../view/goback.html');
+    exit;
+}
 // دریافت ماه و سال انتخاب شده از فرم یا استفاده از مقادیر پیش‌فرض
 $target_year = isset($_POST['year']) ? intval($_POST['year']) : date('Y');
 $target_month = isset($_POST['month']) ? str_pad(intval($_POST['month']), 2, '0', STR_PAD_LEFT) : date('m');

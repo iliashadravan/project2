@@ -97,3 +97,12 @@ function getUserAdminStatus($db, $user_id) {
         return $user;
     }
 }
+function getUserByPhoneNumber($db, $phone_number) {
+    $stmt = $db->prepare("SELECT * FROM users WHERE phone_number = ?");
+    $stmt->bind_param("s", $phone_number);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    $stmt->close();
+    return $user;
+}

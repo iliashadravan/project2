@@ -2,12 +2,19 @@
 global $db, $user;
 require_once 'db.php';
 require_once 'function.errors.php';
+require_once 'function.query.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
+$user_phone_number = $_SESSION['phone_number'];
+$user = getUserByPhoneNumber($db, $user_phone_number);
 
+if ($user['is_admin'] != 1) {
+    header('Location: ../view/goback.html');
+    exit;
+}
 $errors = [];
 $show_errors = false;
 
