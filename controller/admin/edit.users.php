@@ -1,8 +1,8 @@
 <?php
 
 global $db, $user;
-require_once 'db.php';
-require_once 'function.query.php'; // بارگذاری فایل شامل تابع
+require_once __DIR__.'/../db.php';
+require_once __DIR__.'/../function.query.php'; // بارگذاری فایل شامل تابع
 
 $errors = [];
 $success = [];

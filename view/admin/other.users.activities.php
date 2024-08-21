@@ -1,6 +1,7 @@
 <?php
-global $persian_month_name, $persian_year, $expected_monthly_work_seconds, $user, $target_month, $target_year, $current_year;
-require_once '../controller/users.activities.php';
+global $target_year, $target_month, $persian_month_name, $persian_year, $db;
+require_once '../../vendor/autoload.php'; // بارگذاری autoload Composer
+require_once '../../controller/admin/other.users.activities.php';
 use Hekmatinasser\Verta\Verta;
 
 // تابع تبدیل سال میلادی به شمسی
@@ -8,36 +9,36 @@ function getJalaliYear($year) {
     $date = new Verta("$year-01-01"); // تاریخ اول ژانویه سال میلادی
     return $date->format('Y'); // تبدیل به سال شمسی
 }
+
 // دریافت سال جاری میلادی
 $current_year = date('Y');
 ?>
+
 <!DOCTYPE html>
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>گزارش ساعت کاری و تأخیر ماهانه</title>
+    <title>فرم انتخاب تاریخ</title>
     <style>
         body {
             font-family: 'Tahoma', sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #f4f4f4;
             direction: rtl;
-            background-color: #f0f2f5;
-            color: #333;
         }
         .container {
             width: 80%;
-            max-width: 1200px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         h1 {
             text-align: center;
-            color: #4CAF50;
+            color: #333;
             margin-bottom: 20px;
         }
         form {
@@ -48,19 +49,18 @@ $current_year = date('Y');
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         label {
-            font-weight: bold;
             margin-right: 10px;
-            color: #555;
+            font-weight: bold;
         }
         select, button {
             padding: 10px;
             margin: 5px;
             font-size: 16px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 4px;
         }
         select {
-            width: 160px;
+            width: 150px;
         }
         button {
             background-color: #4CAF50;
@@ -76,10 +76,10 @@ $current_year = date('Y');
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            background-color: #ffffff;
+            margin-top: 20px;
+            background-color: #fff;
             border-radius: 8px;
-            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         th, td {
             border: 1px solid #ddd;
@@ -99,8 +99,10 @@ $current_year = date('Y');
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h1>گزارش ساعت کاری و تأخیر ماهانه</h1>
+    <h1>working and delay times report</h1>
+
     <form method="post" action="">
         <label for="year">سال:</label>
         <select name="year" id="year">
@@ -136,35 +138,46 @@ $current_year = date('Y');
             ?>
         </select>
 
-        <button type="submit">جستجو</button>
+        <button type="submit">Search</button>
     </form>
-    <h2>ساعت‌های کاری از: <?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?></h2>
+
+    <h2>Working hours</h2>
     <table>
         <thead>
         <tr>
-            <th>ماه</th>
-            <th>کل ساعات کاری</th>
-            <th>تأخیر</th>
-            <th>ساعت کاری در روز تعطیل</th>
+            <th> Users name</th>
+            <th>month</th>
+            <th>Total working hours</th>
+            <th>Delay</th>
+            <th>working hour on holiday</th>
         </tr>
         </thead>
         <tbody>
         <?php
-        if ($user) {
-            // اطلاعات کاربر جاری
-            $user_id = $user['id'];
-            $total_monthly_work_seconds = isset($monthly_work_times[$user_id]) ? $monthly_work_times[$user_id] : 0;
-            $holiday_work_seconds = isset($holiday_work_times_without_multiplier[$user_id]) ? $holiday_work_times_without_multiplier[$user_id] : 0;
-            $delay_seconds = max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds);
+        // دریافت لیست تمامی کاربران
+        $users_query = "SELECT id, firstname, lastname FROM users";
+        $users_result = $db->query($users_query);
 
-            echo "<tr>";
-            echo "<td>" . htmlspecialchars($persian_month_name . " " . $persian_year) . "</td>";
-            echo "<td>" . formatSeconds($total_monthly_work_seconds) . "</td>";
-            echo "<td>" . formatSeconds($delay_seconds) . "</td>";
-            echo "<td>" . formatSeconds($holiday_work_seconds) . "</td>";
-            echo "</tr>";
+        // بررسی اینکه آیا کاربران وجود دارند یا خیر
+        if ($users_result->num_rows > 0) {
+            // حلقه برای نمایش اطلاعات هر کاربر
+            while ($user = $users_result->fetch_assoc()) {
+                // محاسبه ساعات کاری و تأخیر برای هر کاربر
+                $user_id = $user['id'];
+                $total_monthly_work_seconds = isset($monthly_work_times[$user_id]) ? $monthly_work_times[$user_id] : 0;
+                $delay_seconds = isset($expected_monthly_work_seconds) ? max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds) : 0;
+                $holiday_work_seconds = isset($holiday_work_times_without_multiplier[$user_id]) ? $holiday_work_times_without_multiplier[$user_id] : 0;
+
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($user['firstname']) . " " . htmlspecialchars($user['lastname']) . "</td>";
+                echo "<td>" . htmlspecialchars($persian_month_name . " " . $persian_year) . "</td>";
+                echo "<td>" . formatSeconds($total_monthly_work_seconds) . "</td>";
+                echo "<td>" . formatSeconds($delay_seconds) . "</td>";
+                echo "<td>" . formatSeconds($holiday_work_seconds) . "</td>";
+                echo "</tr>";
+            }
         } else {
-            echo "<tr><td colspan='4'>کاربری یافت نشد</td></tr>";
+            echo "<tr><td colspan='5'>هیچ کاربری یافت نشد</td></tr>";
         }
         ?>
         </tbody>

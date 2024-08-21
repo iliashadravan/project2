@@ -1,8 +1,8 @@
 <?php
 global $user, $db;
-require_once '../vendor/autoload.php'; // بارگذاری autoload Composer
-require_once 'db.php';
-require_once 'function.query.php';
+require_once __DIR__. '/../../vendor/autoload.php'; // بارگذاری autoload Composer
+require_once __DIR__.'/../db.php';
+require_once __DIR__. '/../function.query.php';
 use Hekmatinasser\Verta\Verta;
 use Carbon\Carbon;
 
@@ -15,7 +15,7 @@ $user = getUserByPhoneNumber($db, $user_phone_number);
 
 // بررسی اینکه آیا کاربر ادمین است یا نه
 if ($user['is_admin'] != 1) {
-    header('Location: ../view/goback.html');
+    header('Location: ../goback.html');
     exit;
 }
 
@@ -97,6 +97,4 @@ function formatSeconds($seconds) {
     $seconds = $seconds % 60;
     return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 }
-
-
-
+?>

@@ -1,5 +1,5 @@
 <?php
-require_once '../controller/register.php';
+require_once '../../controller/admin/register.php';
 global $show_errors;
 ?>
 <!DOCTYPE html>
@@ -159,6 +159,8 @@ global $show_errors;
     <?php } ?>
 
     <button type="submit">Register</button>
+    <br>
+    <a href="../panel.php">Go to panel</a>
 
 </form>
 </body>

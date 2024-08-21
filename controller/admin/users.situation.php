@@ -1,8 +1,8 @@
 <?php
 // اتصال به پایگاه داده
 global $db;
-require_once 'db.php';
-require_once 'function.query.php';
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ .'/../function.query.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -13,7 +13,7 @@ $user_phone_number = $_SESSION['phone_number'];
 $user = getUserByPhoneNumber($db, $user_phone_number);
 
 if ($user['is_admin'] != 1) {
-    header('Location: ../view/goback.html');
+    header('Location: ../goback.html');
     exit;
 }
 

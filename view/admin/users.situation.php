@@ -1,14 +1,13 @@
 <?php
 global $users;
-require_once '../controller/users.situation.php';
-
+require_once '../../controller/admin/users.situation.php';
 ?>
 <!DOCTYPE html>
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
     <title>User management</title>
-    <link rel="stylesheet" href="sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
+    <link rel="stylesheet" href="../sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
 </head>
 <style>
     body {
@@ -126,7 +125,7 @@ require_once '../controller/users.situation.php';
 
 </style>
 <body>
-<?php include 'sidebar.php'; ?>
+<?php //include '../sidebar.php'; ?>
 <div class="container">
     <div class="header">
         <h1>Users management</h1>
@@ -166,7 +165,7 @@ require_once '../controller/users.situation.php';
         <tbody>
         <?php foreach ($users as $user): ?>
             <tr>
-                <td><?php echo htmlspecialchars($user['firstname']) . ' ' . htmlspecialchars($user['lastname']); ?></td>
+                <td><?php echo htmlspecialchars($user['firstname'])  . htmlspecialchars($user['lastname']); ?></td>
                 <td><?php echo $user['is_active'] ? 'Inactive' : 'Active'; ?></td>
                 <td><a href="edit.users.php?id=<?php echo $user['id']; ?>" class="btn edit">Edit</a></td>
                 <td>
