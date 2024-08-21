@@ -1,5 +1,15 @@
+
+@font-face {
+    font-family: vazir;
+    src: url("../public/fonts/vazir/Vazir-Light.eot");
+    src: url("../public/fonts/vazir/Vazir-Light.woff") format("woff"),
+    url("../public/fonts/vazir/Vazir-Medium.ttf") format("ttf"),
+    url("../public/fonts/vazir/Vazir-Light.woff2") format("woff2");
+}
+
 /* Resetting some default styles */
 body, h1, h2, p {
+    font-family: vazir, sans-serif;
     margin: 0;
     padding: 0;
 }

@@ -17,86 +17,7 @@ $current_year = date('Y');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>گزارش ساعت کاری و تأخیر ماهانه</title>
-    <style>
-        body {
-            font-family: 'Tahoma', sans-serif;
-            margin: 0;
-            padding: 0;
-            direction: rtl;
-            background-color: #f0f2f5;
-            color: #333;
-        }
-        .container {
-            width: 80%;
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-        form {
-            margin-bottom: 20px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        label {
-            font-weight: bold;
-            margin-right: 10px;
-            color: #555;
-        }
-        select, button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        select {
-            width: 160px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        button:hover {
-            background-color: #45a049;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-    </style>
+    <link rel="stylesheet" href="../public/css/style.css">
 </head>
 <body>
 <div class="container">
@@ -106,9 +27,9 @@ $current_year = date('Y');
         <select name="year" id="year">
             <?php
             // نمایش سال‌ها از 5 سال گذشته تا سال جاری
-            for ($i = $current_year; $i >= $current_year - 5; $i--) {
+            for ($i = $current_year+1; $i >= $current_year - 10; $i--) {
                 $jalali_year = getJalaliYear($i);
-                echo "<option value=\"$i\"" . ($i == $target_year ? ' selected' : '') . ">$jalali_year</option>";
+                echo "<option value=\"$i\"" . ($i == $target_year+1 ? ' selected' : '') . ">$jalali_year</option>";
             }
             ?>
         </select>
