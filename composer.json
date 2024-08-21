@@ -2,6 +2,7 @@
     "require": {
         "hekmatinasser/verta": "^8.4",
         "morilog/jalali": "^3.4",
-        "hekmatinasser/jalali": "^8.2"
+        "hekmatinasser/jalali": "^8.2",
+        "nesbot/carbon": "^3.8"
     }
 }

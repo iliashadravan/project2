@@ -1,159 +1,131 @@
 <?php
-global $holiday_work_time_without_multiplier, $users, $persian_month_name, $persian_year, $target_month, $target_year;
+global $db, $persian_year, $persian_month_name;
+require_once '../vendor/autoload.php'; // بارگذاری autoload Composer
 require_once '../controller/other.users.activities.php';
-
+echo "<p>تاریخ انتخابی: $persian_month_name $persian_year</p>";
 ?>
+
 <!DOCTYPE html>
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>گزارش ساعت کاری</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش ساعت کاری و تأخیر ماهانه</title>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Tahoma', sans-serif;
+            margin: 20px;
+            direction: rtl;
             background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            padding: 20px;
         }
         h1 {
             text-align: center;
-            background-color: #4a4a4a; /* Slate gray */
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
+            color: #333;
             margin-bottom: 20px;
+        }
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            margin: 0 10px;
+            font-weight: bold;
+        }
+        select, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        select {
+            width: 150px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
             background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        table th, table td {
-            padding: 15px;
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
             text-align: center;
-            border-bottom: 1px solid #ddd;
         }
-        table th {
-            background-color: #4a4a4a; /* Slate gray */
-            color: #fff;
+        th {
+            background-color: #f4f4f4;
+            color: #333;
         }
-        table tr:nth-child(even) {
+        tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-        }
-        .form-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            flex: 1;
-            font-weight: bold;
-        }
-        .form-group select, .form-group button {
-            flex: 2;
-            margin-left: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .form-group button {
-            background-color: #4a4a4a; /* Slate gray */
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-        .form-group button:hover {
-            background-color: #3b3b3b; /* Darker slate gray */
-        }
-        .date-display {
-            font-family: 'Tahoma', sans-serif; /* فونت فارسی ساده */
-            font-size: 18px;
-            color: #4A90E2; /* رنگ متن */
-            background-color: #f7f9fc; /* رنگ پس‌زمینه */
-            padding: 10px;
-            border-radius: 8px; /* گرد کردن گوشه‌ها */
-            text-align: center; /* وسط‌چین کردن متن */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* سایه برای جلوه بیشتر */
-            margin: 20px auto;
-            width: fit-content;
+        tr:hover {
+            background-color: #f1f1f1;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>گزارش ساعت کاری و تأخیر</h1>
-    <form method="POST" action="" class="select-month-year">
-        <div class="form-group">
-            <label for="month">Select month:</label>
-            <select id="month" name="month">
-                <?php foreach (range(1, 12) as $month) : ?>
-                    <?php
-                    $month_num = str_pad($month, 2, '0', STR_PAD_LEFT);
-                    $jalali_month = convertToJalali($target_year, $month_num)['month'];
-                    ?>
-                    <option value="<?= $month_num ?>" <?= $month_num == $target_month ? 'selected' : '' ?>><?= $jalali_month ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="year">Select year:</label>
-            <select id="year" name="year">
-                <?php foreach (range(date('Y'), date('Y') - 5) as $year) : ?>
-                    <?php
-                    $jalali_year = convertToJalali($year, '01')['year'];
-                    ?>
-                    <option value="<?= $year ?>" <?= $year == $target_year ? 'selected' : '' ?>><?= $jalali_year ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <button type="submit">Show report</button>
-        </div>
-    </form>
+<h1>گزارش ساعت کاری و تأخیر ماهانه</h1>
 
-    <p class="date-display">Month: <?= htmlspecialchars($persian_month_name) ?>، Year: <?= htmlspecialchars($persian_year) ?></p>
-    <table>
-        <thead>
-        <tr>
-            <th>نام کاربر</th>
-            <th>ساعات کاری</th>
-            <th>ساعات تأخیر</th>
-            <th>ساعات کاری در روزهای تعطیل</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($users as $user): ?>
-            <tr>
-                <td><?php echo htmlspecialchars($user['firstname']) . ' ' . htmlspecialchars($user['lastname']); ?></td>
-                <td><?php echo formatSeconds($work_times[$user['id']] ?? 0); ?></td>
-                <td><?php echo formatSeconds($delay_times[$user['id']] ?? 0); ?></td>
-                <td>
-                    <div class="tooltip">
-                        <?php echo formatSeconds(isset($holiday_work_times_without_multiplier[$user['id']]) ?($holiday_work_times_without_multiplier[$user['id']])  : 0); ?>
-                    </div>
-                </td>
 
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
+<h2>ساعت‌های کاری</h2>
+<table>
+    <thead>
+    <tr>
+        <th>نام کاربر</th>
+        <th>ماه</th>
+        <th>کل ساعات کاری (با ضریب 1.4)</th>
+        <th>تأخیر</th>
+        <th>ساعت کاری در روز تعطیل (بدون ضریب)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php
+    // دریافت لیست تمامی کاربران
+    $users_query = "SELECT id, firstname, lastname FROM users";
+    $users_result = $db->query($users_query);
+
+    // بررسی اینکه آیا کاربران وجود دارند یا خیر
+    if ($users_result->num_rows > 0) {
+        // حلقه برای نمایش اطلاعات هر کاربر
+        while ($user = $users_result->fetch_assoc()) {
+            // محاسبه ساعات کاری و تأخیر برای هر کاربر
+            $user_id = $user['id'];
+            $total_monthly_work_seconds = isset($monthly_work_times[$user_id]) ? $monthly_work_times[$user_id] : 0;
+            $delay_seconds = isset($expected_monthly_work_seconds) ? max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds) : 0;
+            $holiday_work_seconds = isset($holiday_work_times_without_multiplier[$user_id]) ? $holiday_work_times_without_multiplier[$user_id] : 0;
+
+            echo "<tr>";
+            echo "<td>" . htmlspecialchars($user['firstname']) . " " . htmlspecialchars($user['lastname']) . "</td>";
+            echo "<td>" . htmlspecialchars($persian_month_name . " " . $persian_year) . "</td>";
+            echo "<td>" . formatSeconds($total_monthly_work_seconds) . "</td>";
+            echo "<td>" . formatSeconds($delay_seconds) . "</td>";
+            echo "<td>" . formatSeconds($holiday_work_seconds) . "</td>";
+            echo "</tr>";
+        }
+    } else {
+        echo "<tr><td colspan='5'>هیچ کاربری یافت نشد</td></tr>";
+    }
+    ?>
+    </tbody>
+</table>
 </body>
 </html>
