@@ -18,6 +18,8 @@ $current_year = date('Y');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>گزارش ساعت کاری و تأخیر ماهانه</title>
     <link rel="stylesheet" href="../public/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
 </head>
 <body>
 <div class="container">
@@ -27,13 +29,12 @@ $current_year = date('Y');
         <select name="year" id="year">
             <?php
             // نمایش سال‌ها از 5 سال گذشته تا سال جاری
-            for ($i = $current_year+1; $i >= $current_year - 10; $i--) {
+            for ($i = $current_year+1; $i >= $current_year - 5; $i--) {
                 $jalali_year = getJalaliYear($i);
                 echo "<option value=\"$i\"" . ($i == $target_year+1 ? ' selected' : '') . ">$jalali_year</option>";
             }
             ?>
         </select>
-
         <label for="month">ماه:</label>
         <select name="month" id="month">
             <?php
@@ -59,7 +60,7 @@ $current_year = date('Y');
 
         <button type="submit">جستجو</button>
     </form>
-    <h2>ساعت‌های کاری از: <?php echo htmlspecialchars($user['firstname'] . ' ' . $user['lastname']); ?></h2>
+    <link rel="stylesheet" href="sidebar.style.css">
     <table>
         <thead>
         <tr>
@@ -90,6 +91,7 @@ $current_year = date('Y');
         ?>
         </tbody>
     </table>
+    <a href="panel.php" class="icon-link"><i class="fas fa-tachometer-alt"></i> Panel</a>
 </div>
 </body>
 </html>

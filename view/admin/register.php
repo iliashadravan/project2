@@ -123,6 +123,19 @@ global $show_errors;
         .form-footer a:hover {
             text-decoration: underline;
         }
+        .styled-link {
+            text-decoration: none; /* حذف خط زیر لینک */
+            color: #ffffff; /* رنگ متن */
+            background-color: #007bff; /* رنگ پس‌زمینه */
+            padding: 10px 20px; /* فضای داخلی */
+            border-radius: 5px; /* گرد کردن گوشه‌ها */
+            font-weight: bold; /* ضخیم کردن متن */
+            transition: background-color 0.3s ease; /* افکت تغییر رنگ پس‌زمینه */
+        }
+
+        .styled-link:hover {
+            background-color: #0056b3; /* تغییر رنگ پس‌زمینه هنگام هاور */
+        }
     </style>
 </head>
 <body>
@@ -160,7 +173,7 @@ global $show_errors;
 
     <button type="submit">Register</button>
     <br>
-    <a href="../panel.php">Go to panel</a>
+    <a href="../panel.php" class="styled-link">Panel</a>
 
 </form>
 </body>

@@ -27,6 +27,8 @@ $current_year = date('Y');
             padding: 0;
             background-color: #f4f4f4;
             direction: rtl;
+
+
         }
         .container {
             width: 80%;
@@ -96,10 +98,22 @@ $current_year = date('Y');
         tr:hover {
             background-color: #f1f1f1;
         }
+        .styled-link {
+            text-decoration: none; /* حذف خط زیر لینک */
+            color: #ffffff; /* رنگ متن */
+            background-color: #007bff; /* رنگ پس‌زمینه */
+            padding: 10px 20px; /* فضای داخلی */
+            border-radius: 5px; /* گرد کردن گوشه‌ها */
+            font-weight: bold; /* ضخیم کردن متن */
+            transition: background-color 0.3s ease; /* افکت تغییر رنگ پس‌زمینه */
+        }
+
+        .styled-link:hover {
+            background-color: #0056b3; /* تغییر رنگ پس‌زمینه هنگام هاور */
+        }
     </style>
 </head>
 <body>
-
 <div class="container">
     <h1>working and delay times report</h1>
 
@@ -108,9 +122,9 @@ $current_year = date('Y');
         <select name="year" id="year">
             <?php
             // نمایش سال‌ها از 5 سال گذشته تا سال جاری
-            for ($i = $current_year; $i >= $current_year - 5; $i--) {
+            for ($i = $current_year + 1; $i >= $current_year - 5; $i--) {
                 $jalali_year = getJalaliYear($i);
-                echo "<option value=\"$i\"" . ($i == $target_year ? ' selected' : '') . ">$jalali_year</option>";
+                echo "<option value=\"$i\"" . ($i == $target_year +1 ? ' selected' : '') . ">$jalali_year</option>";
             }
             ?>
         </select>
@@ -139,6 +153,8 @@ $current_year = date('Y');
         </select>
 
         <button type="submit">Search</button>
+        <a href="../panel.php" class="styled-link">Panel</a>
+
     </form>
 
     <h2>Working hours</h2>
