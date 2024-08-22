@@ -29,9 +29,9 @@ $current_year = date('Y');
         <select name="year" id="year">
             <?php
             // نمایش سال‌ها از 5 سال گذشته تا سال جاری
-            for ($i = $current_year+1; $i >= $current_year - 5; $i--) {
+            for ($i = $current_year; $i >= $current_year - 5; $i--) {
                 $jalali_year = getJalaliYear($i);
-                echo "<option value=\"$i\"" . ($i == $target_year+1 ? ' selected' : '') . ">$jalali_year</option>";
+                echo "<option value=\"$i\"" . ($i == $target_year ? ' selected' : '') . ">$jalali_year</option>";
             }
             ?>
         </select>
