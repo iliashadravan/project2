@@ -68,8 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $clock_in = new Verta($work_time['clock_in']);
                 $clock_out = new Verta(); // زمان خروج فعلی به شمسی
 
-                $delay_in = max($clock_in->timestamp - $standard_clock_in->timestamp, 0);
-                $delay_out = max($standard_clock_out->timestamp - $clock_out->timestamp, 0);
+                // تأخیر ورود فقط وقتی محاسبه شود که کاربر دیرتر از ساعت استاندارد وارد شده باشد
+                $delay_in = max($clock_in->timestamp > $standard_clock_in->timestamp ? $clock_in->timestamp - $standard_clock_in->timestamp : 0, 0);
+
+                // تأخیر خروج فقط وقتی محاسبه شود که کاربر زودتر از ساعت استاندارد خارج شده باشد
+                $delay_out = max($clock_out->timestamp < $standard_clock_out->timestamp ? $standard_clock_out->timestamp - $clock_out->timestamp : 0, 0);
 
                 $total_delay = $delay_in + $delay_out;
                 $total_delay_formatted = gmdate('H:i:s', $total_delay);
@@ -79,9 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sql = "UPDATE work_time SET clock_out = ?, report = ? WHERE id = ?";
                 $stmt = $db->prepare($sql);
                 $stmt->bind_param('ssi', $clock_out_shamsi, $report, $work_time_id);
-
-                date_default_timezone_set('Asia/Tehran');         // تنظیم ساعت بر تهران
-                $time = date('Y-m-d H:i:s');
 
                 if ($stmt->execute()) {
                     $sql = "INSERT INTO delay_time (date, total_delay, user_id, work_time_id) VALUES (CURDATE(), ?, ?, ?)";
@@ -96,9 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $errors['message'] = "Error updating exit time. Please try again. " . $stmt->error;
                 }
-            } else {
-                $errors['message'] = "No clock-in record found for today. Please register your clock-in time first.";
             }
+
         }
     }
 }

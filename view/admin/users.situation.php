@@ -135,7 +135,6 @@ require_once '../../controller/admin/users.situation.php';
 
 </style>
 <body>
-<?php //include '../sidebar.php'; ?>
 <div class="container">
     <div class="header">
         <h1>Users management</h1>

@@ -49,11 +49,7 @@ $query_work = "
     FROM work_time 
     WHERE DATE_FORMAT(date, '%Y-%m') = ? 
 ";
-$stmt = $db->prepare($query_work);
-$target_date = $target_year . '-' . $target_month;
-$stmt->bind_param('s', $target_date);
-$stmt->execute();
-$work_data = $stmt->get_result();
+$work_data = getWorkData($db, $query_work, $target_year, $target_month);
 
 $monthly_work_times = [];
 $holiday_work_times_without_multiplier = [];
