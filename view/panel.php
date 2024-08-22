@@ -141,6 +141,15 @@ use Hekmatinasser\Verta\Verta;
 <div class="container">
     <div class="header">
         <h1>Users Panel</h1>
+        <?php
+        $user = getUserById($user_id, $db);
+        ?>
+
+        <?php if (isset($user['id']) && isset($user['firstname'])): ?>
+            <h2>Welcome <?php echo $user['firstname']  ,' '. $user['lastname'] , '  !' ?> </h2>
+        <?php else: ?>
+            <h2>User information not found.</h2>
+        <?php endif; ?>
     </div>
 
     <!-- فرم ثبت زمان ورود -->
