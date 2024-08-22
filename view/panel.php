@@ -146,7 +146,7 @@ use Hekmatinasser\Verta\Verta;
         ?>
 
         <?php if (isset($user['id']) && isset($user['firstname'])): ?>
-            <h2>Welcome <?php echo $user['firstname']  ,' '. $user['lastname'] , '  !' ?> </h2>
+            <h2 style="color: #b2ebf2">Welcome <?php echo $user['firstname']  ,' '. $user['lastname'] , '  !' ?> </h2>
         <?php else: ?>
             <h2>User information not found.</h2>
         <?php endif; ?>
