@@ -60,7 +60,7 @@ $current_year = date('Y');
 
         <button type="submit">جستجو</button>
     </form>
-    <link rel="stylesheet" href="sidebar.style.css">
+    <link rel="stylesheet" href="../public/css/sidebar.style.css">
     <table>
         <thead>
         <tr>

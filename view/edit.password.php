@@ -6,7 +6,7 @@ require_once '../controller/edit.password.php';
 <head>
     <meta charset="UTF-8">
     <title>edit password</title>
-    <link rel="stylesheet" href="sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
+    <link rel="stylesheet" href="../public/css/sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
     <style>
         body {
             font-family: 'Roboto', sans-serif;
