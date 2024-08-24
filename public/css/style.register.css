@@ -1,0 +1,127 @@
+body {
+    background: linear-gradient(135deg, #B993D6, #8CA6DB);
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+h2 {
+    color: #ffffff;
+    font-size: 2.3em;
+    margin-bottom: 25px;
+}
+
+form {
+    background-color: rgba(255, 255, 255, 0.15); /* کاهش شفافیت پس‌زمینه */
+    padding: 35px;
+    border-radius: 12px; /* گرد کردن گوشه‌ها کمی کمتر شده */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2); /* کاهش سایه برای ملایم‌تر شدن */
+    color: #ffffff;
+    width: 100%;
+    max-width: 380px;
+    animation: fadeIn 1.5s ease-in-out; /* طولانی‌تر کردن زمان انیمیشن برای ملایمت بیشتر */
+    text-align: left;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.4); /* کاهش شدت رنگ حاشیه */
+    border-radius: 6px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.2); /* رنگ پس‌زمینه ملایم‌تر */
+    color: #333333;
+    transition: border-color 0.4s, box-shadow 0.4s; /* ملایم‌تر شدن افکت‌های تمرکز */
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus {
+    border-color: #8CA6DB; /* تغییر رنگ به آبی ملایم */
+    box-shadow: 0 0 8px rgba(140, 166, 219, 0.5); /* کاهش شدت سایه */
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.8); /* ملایم‌تر شدن پس‌زمینه در حالت فوکوس */
+}
+
+.error {
+    color: #ff6b6b;
+    font-size: 0.9em;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+button {
+    color: #ffffff;
+    background-color: #8CA6DB; /* تغییر رنگ به آبی ملایم */
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    display: block;
+    margin: 20px auto 0;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #526894; /* تغییر رنگ هاور به آبی ملایم‌تر */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* کاهش شدت سایه در حالت هاور */
+}
+
+.form-footer {
+    margin-top: 20px;
+}
+
+.form-footer a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+.styled-link {
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #8CA6DB; /* تغییر رنگ به آبی ملایم */
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.styled-link:hover {
+    background-color: #5f78b0; /* تغییر رنگ هاور به آبی ملایم‌تر */
+}

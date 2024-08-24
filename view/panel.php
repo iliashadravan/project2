@@ -10,7 +10,7 @@ use Hekmatinasser\Verta\Verta;
 <head>
     <meta charset="UTF-8">
     <title>dashboard</title>
-    <link rel="stylesheet" href="../public/css/sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
+    <link rel="stylesheet" href="sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
 
     <style>
         body {

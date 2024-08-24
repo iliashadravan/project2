@@ -7,7 +7,7 @@ require_once '../../controller/admin/users.situation.php';
 <head>
     <meta charset="UTF-8">
     <title>User management</title>
-    <link rel="stylesheet" href="../../public/css/sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
+    <link rel="stylesheet" href="../sidebar.style.css"> <!-- آدرس صحیح فایل CSS سایدبار -->
 </head>
 <style>
     body {
