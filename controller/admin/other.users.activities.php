@@ -50,9 +50,8 @@ $query_work = "
     WHERE DATE_FORMAT(date, '%Y-%m') = ? 
 ";
 $work_data = getWorkData($db, $query_work, $target_year, $target_month);
-
-$monthly_work_times = [];
-$holiday_work_times_without_multiplier = [];
+$monthly_work_times = [];             // مجموع ساعات کاری در روز های عادی
+$holiday_work_times_without_multiplier = [];   // مجموع ساعت کاری در روز های تعطیل
 
 // پردازش داده‌های کاری
 while ($row = $work_data->fetch_assoc()) {
