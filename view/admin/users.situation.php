@@ -50,7 +50,7 @@ require_once '../../controller/admin/users.situation.php';
         <tbody>
         <?php foreach ($users as $user): ?>
             <tr>
-                <td><?php echo htmlspecialchars($user['firstname'])  . htmlspecialchars($user['lastname']); ?></td>
+                <td><?php echo htmlspecialchars($user['firstname'])  ,'  ',  htmlspecialchars($user['lastname']); ?></td>
                 <td><?php echo $user['is_active'] ? 'Inactive' : 'Active'; ?></td>
                 <td><a href="edit.users.php?id=<?php echo $user['id']; ?>" class="btn edit">Edit</a></td>
                 <td>
