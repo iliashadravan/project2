@@ -75,6 +75,7 @@ $current_year = date('Y');
             <th>Total working hours</th>
             <th>Delay</th>
             <th>working hour on holiday</th>
+            <th>Number of working days</th>
         </tr>
         </thead>
         <tbody>
@@ -92,6 +93,7 @@ $current_year = date('Y');
                 $total_monthly_work_seconds = isset($monthly_work_times[$user_id]) ? $monthly_work_times[$user_id] : 0;
                 $delay_seconds = isset($expected_monthly_work_seconds) ? max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds) : 0;
                 $holiday_work_seconds = isset($holiday_work_times_without_multiplier[$user_id]) ? $holiday_work_times_without_multiplier[$user_id] : 0;
+                $work_days = isset($work_days_count[$user_id]) ? $work_days_count[$user_id] : 0; // تعداد روزهای کاری
 
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($user['firstname']) . " " . htmlspecialchars($user['lastname']) . "</td>";
@@ -99,13 +101,15 @@ $current_year = date('Y');
                 echo "<td>" . formatSeconds($total_monthly_work_seconds) . "</td>";
                 echo "<td>" . formatSeconds($delay_seconds) . "</td>";
                 echo "<td>" . formatSeconds($holiday_work_seconds) . "</td>";
+                echo "<td>" . htmlspecialchars($work_days) . "</td>"; // نمایش تعداد روزهای کاری
                 echo "</tr>";
             }
         } else {
-            echo "<tr><td colspan='5'>هیچ کاربری یافت نشد</td></tr>";
+            echo "<tr><td colspan='6'>هیچ کاربری یافت نشد</td></tr>";
         }
         ?>
         </tbody>
+
     </table>
 </div>
 </body>
