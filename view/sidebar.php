@@ -4,6 +4,7 @@ global $user;
 require_once '../controller/sidebar.php';
 ?>
 <div class="sidebar">
+    <link rel="stylesheet"href="../public/css/style.sidebar.css">
     <ul>
         <!-- لینک‌هایی که برای همه کاربران نمایش داده می‌شود -->
         <li><a href="panel.php">User Panel</a></li>
