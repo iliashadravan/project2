@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['clock_in'])) {
         $work_time = getLastUnclockedWorkTime($db, $user_id);
 
-        date_default_timezone_set('Asia/Tehran');         // تنظیم ساعت بر تهران
+        date_default_timezone_set('Asia/Tehran'); // تنظیم ساعت بر تهران
         $time = date('Y-m-d H:i:s');
 
         if ($work_time) {
@@ -59,9 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $work_time = getCurrentWorkTime($db, $user_id);
 
-            date_default_timezone_set('Asia/Tehran');         // تنظیم ساعت بر تهران
+            date_default_timezone_set('Asia/Tehran'); // تنظیم ساعت بر تهران
             $time = date('Y-m-d H:i:s');
-
 
             if ($work_time) {
                 $work_time_id = $work_time['id'];
@@ -97,11 +96,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $errors['message'] = "Error updating exit time. Please try again. " . $stmt->error;
                 }
             }
-
         }
     }
 }
 
-$work_times = getWorkTimesByUserId($db, $user_id);
+// فیلتر کردن ورود و خروج‌های روز جاری
+$date_today = date('Y-m-d'); // تاریخ روز جاری به میلادی
+$work_times = getWorkTimesByUserIdAndDate($db, $user_id, $date_today);
 
+// تابع برای تبدیل تاریخ میلادی به شمسی
+function convertToJalali($date) {
+    $verta = new Verta($date);
+    return $verta->format('Y-m-d'); // بازگشت تاریخ شمسی به فرمت مورد نظر
+}
+
+// تابع برای فرمت‌کردن ثانیه‌ها به ساعت، دقیقه و ثانیه
+function formatSeconds($seconds) {
+    $hours = floor($seconds / 3600);
+    $minutes = floor(($seconds % 3600) / 60);
+    $seconds = $seconds % 60;
+    return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+}
 ?>

@@ -30,15 +30,17 @@ use Hekmatinasser\Verta\Verta;
     </div>
 
     <!-- فرم ثبت زمان ورود -->
-    <form method="POST" action="">
-        <button type="submit" name="clock_in" class="button-entry">Entry</button>
-    </form>
-
-    <!-- فرم ثبت زمان خروج -->
     <?php
     $clock_in_record = getCurrentWorkTime($db, $user_id);
     ?>
-    <?php if ($clock_in_record): ?>
+    <?php if (!$clock_in_record): // اگر رکورد ورود وجود ندارد، دکمه ورود را نمایش دهید ?>
+        <form method="POST" action="">
+            <button type="submit" name="clock_in" class="button-entry">Entry</button>
+        </form>
+    <?php endif; ?>
+
+    <!-- فرم ثبت زمان خروج -->
+    <?php if ($clock_in_record): // اگر رکورد ورود وجود دارد، دکمه خروج و فرم گزارش را نمایش دهید ?>
         <form method="POST" action="">
             <div class="form-group">
                 <label for="report">Report:</label>
@@ -65,11 +67,19 @@ use Hekmatinasser\Verta\Verta;
         </div>
     <?php endif; ?>
 
+    <!-- نمایش تاریخ روز -->
+    <?php
+    // محاسبه و نمایش تاریخ شمسی امروز
+    $today_shamsi = (new Verta())->format('Y-m-d');
+    ?>
+    <div class="today-date">
+        <h3>Today's Date: <?php echo htmlspecialchars($today_shamsi); ?></h3>
+    </div>
+
     <!-- جدول تایم‌های ورود و خروج -->
     <table>
         <thead>
         <tr>
-            <th>Date</th>
             <th>Entry time</th>
             <th>Exit time</th>
             <th>Report</th>
@@ -78,12 +88,10 @@ use Hekmatinasser\Verta\Verta;
         <tbody>
         <?php while ($row = $work_times->fetch_assoc()): ?>
             <?php
-            $date_shamsi = (new Verta($row['date']))->format('Y-m-d');
             $clock_in_shamsi = $row['clock_in'] ? (new Verta($row['clock_in']))->format('H:i:s') : '---';
             $clock_out_shamsi = $row['clock_out'] ? (new Verta($row['clock_out']))->format('H:i:s') : '---';
             ?>
             <tr>
-                <td><?php echo htmlspecialchars($date_shamsi); ?></td>
                 <td><?php echo htmlspecialchars($clock_in_shamsi); ?></td>
                 <td><?php echo htmlspecialchars($clock_out_shamsi); ?></td>
                 <td><?php echo htmlspecialchars($row['report']); ?></td>
@@ -92,3 +100,5 @@ use Hekmatinasser\Verta\Verta;
         </tbody>
     </table>
 </div>
+</body>
+</html>
