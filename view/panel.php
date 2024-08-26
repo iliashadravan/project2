@@ -31,7 +31,7 @@ use Hekmatinasser\Verta\Verta;
 
     <!-- فرم ثبت زمان ورود -->
     <form method="POST" action="">
-        <button type="submit" name="clock_in">Entry</button>
+        <button type="submit" name="clock_in" class="button-entry">Entry</button>
     </form>
 
     <!-- فرم ثبت زمان خروج -->
@@ -92,5 +92,3 @@ use Hekmatinasser\Verta\Verta;
         </tbody>
     </table>
 </div>
-</body>
-</html>

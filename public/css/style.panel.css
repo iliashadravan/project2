@@ -22,14 +22,14 @@ body {
     margin-bottom: 30px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
-.header:hover{
-    background-color: #0056b3;
-    transform: scale(1.05);
 
+.header:hover{
+    background-color: #004494;
+    transform: scale(1.05);
 }
 
 form {
-    background-color: #495057;
+    background-color: #444;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -54,7 +54,7 @@ form {
     border-radius: 6px;
     font-size: 16px;
     box-sizing: border-box;
-    background-color: #6c757d;
+    background-color: #555;
     color: #f8f9fa;
 }
 
@@ -86,7 +86,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 30px;
-    background-color: #343a40;
+    background-color: #444;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -95,28 +95,28 @@ table {
 table th, table td {
     padding: 15px;
     text-align: center;
-    border-bottom: 1px solid #6c757d;
+    border-bottom: 1px solid #555;
 }
 
 table th {
-    background-color: #007bff;
+    background-color: #0056b3;
     color: #f8f9fa;
     font-weight: bold;
     text-transform: uppercase;
 }
 
 table tr:nth-child(even) {
-    background-color: #495057;
+    background-color: #555;
 }
 
 table tr:hover {
-    background-color: #6c757d;
+    background-color: #666;
     transform: scale(1.02);
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .error, .success {
-    background-color: #495057;
+    background-color: #444;
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -151,19 +151,19 @@ button {
 
 /* استایل دکمه ورودی (Entry) */
 .button-entry {
-    background-color: #007bff; /* رنگ آبی تیره */
-    color: #fff;
+    background-color: #007bff;
+    color: #f8f9fa;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .button-entry:hover {
-    background-color: #0056b3; /* رنگ آبی تیره‌تر برای حالت هاور */
+    background-color: #0056b3;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     transform: scale(1.05);
 }
 
 .button-entry:active {
-    background-color: #004494; /* رنگ آبی تیره‌تر برای حالت فعال */
+    background-color: #004494;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     transform: scale(0.95);
 }
