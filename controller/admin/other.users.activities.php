@@ -52,8 +52,9 @@ $query_work = "
 $work_data = getWorkData($db, $query_work, $target_year, $target_month);
 $monthly_work_times = [];             // مجموع ساعات کاری در روز های عادی
 $holiday_work_times_without_multiplier = [];   // مجموع ساعت کاری در روز های تعطیل
-$work_days_count = []; // شمارش تعداد روزهای کاری
+$work_days_count = [];    // شمارش تعداد روزهای کاری
 $user_work_dates = []; // آرایه کمکی برای ذخیره تاریخ‌های کاری کاربران
+$non_weekend_work_seconds = []; // مجموع ساعات کاری بدون روزهای جمعه و شنبه
 
 // پردازش داده‌های کاری
 while ($row = $work_data->fetch_assoc()) {
@@ -65,6 +66,7 @@ while ($row = $work_data->fetch_assoc()) {
         $monthly_work_times[$user_id] = 0;
         $work_days_count[$user_id] = 0; // مقداردهی اولیه تعداد روزهای کاری
         $user_work_dates[$user_id] = []; // مقداردهی اولیه آرایه تاریخ‌ها
+        $non_weekend_work_seconds[$user_id] = 0; // مقداردهی اولیه ساعات کاری در روزهای غیرتعطیل
     }
 
     if (!isset($holiday_work_times_without_multiplier[$user_id])) {
@@ -76,6 +78,8 @@ while ($row = $work_data->fetch_assoc()) {
     if ($day_of_week == Carbon::FRIDAY || $day_of_week == Carbon::SATURDAY) {
         $holiday_work_times_without_multiplier[$user_id] += $work_seconds; // ذخیره ساعات واقعی بدون ضریب
         $work_seconds *= $weekend_multiplier; // اعمال ضریب 1.4 به ساعات کاری
+    } else {
+        $non_weekend_work_seconds[$user_id] += $work_seconds; // ذخیره ساعات کاری روزهای غیرتعطیل
     }
 
     // افزایش تعداد روزهای کاری برای هر کاربر، اگر تاریخ جدید باشد
@@ -87,13 +91,22 @@ while ($row = $work_data->fetch_assoc()) {
     $monthly_work_times[$user_id] += $work_seconds;
 }
 
-// محاسبه مجموع ساعات کاری ماهانه با ضریب 1.4 برای روزهای تعطیل
-$total_monthly_work_seconds = array_sum($monthly_work_times);
+// محاسبه مجموع ساعات کاری ماهانه بدون احتساب روزهای تعطیل
+$total_non_weekend_work_seconds = array_sum($non_weekend_work_seconds);
 $total_days_in_month = Carbon::create($target_year, $target_month, 1)->daysInMonth;
-$expected_monthly_work_seconds = $total_days_in_month * $standard_work_hours_per_day * 3600;
 
-// محاسبه تأخیر ماهانه
-$delay_seconds = max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds);
+// تعداد روزهای غیرتعطیل در ماه جاری
+$non_weekend_days = Carbon::create($target_year, $target_month, 1)
+    ->endOfMonth()
+    ->diffInDaysFiltered(function (Carbon $date) {
+        return !$date->isFriday() && !$date->isSaturday();
+    }, Carbon::create($target_year, $target_month, 1));
+
+// محاسبه ساعات کاری مورد انتظار بدون روزهای تعطیل
+$expected_non_weekend_work_seconds = $non_weekend_days * $standard_work_hours_per_day * 3600;
+
+// محاسبه تأخیر ماهانه بدون روزهای تعطیل
+$delay_seconds = max(0, $expected_non_weekend_work_seconds - $total_non_weekend_work_seconds);
 
 // تابع فرمت‌کردن ثانیه‌ها به ساعت، دقیقه و ثانیه
 function formatSeconds($seconds) {

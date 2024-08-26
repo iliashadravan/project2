@@ -3,6 +3,7 @@ global $target_year, $target_month, $persian_month_name, $persian_year, $db;
 require_once '../../vendor/autoload.php'; // بارگذاری autoload Composer
 require_once '../../controller/admin/other.users.activities.php';
 use Hekmatinasser\Verta\Verta;
+use Carbon\Carbon;
 
 // تابع تبدیل سال میلادی به شمسی
 function getJalaliYear($year) {
@@ -24,7 +25,7 @@ $current_year = date('Y');
 </head>
 <body>
 <div class="container">
-    <h1>working and delay times report</h1>
+    <h1>گزارش ساعات کاری و تأخیر</h1>
 
     <form method="post" action="">
         <label for="year">سال:</label>
@@ -33,7 +34,7 @@ $current_year = date('Y');
             // نمایش سال‌ها از 5 سال گذشته تا سال جاری
             for ($i = $current_year ; $i >= $current_year - 5; $i--) {
                 $jalali_year = getJalaliYear($i);
-                echo "<option value=\"$i\"" . ($i == $target_year  ? ' selected' : '') . ">$jalali_year</option>";
+                echo "<option value=\"$i\"" . ($i == $target_year ? ' selected' : '') . ">$jalali_year</option>";
             }
             ?>
         </select>
@@ -61,21 +62,20 @@ $current_year = date('Y');
             ?>
         </select>
 
-        <button type="submit">Search</button>
-        <a href="../panel.php" class="styled-link">Panel</a>
-
+        <button type="submit">جستجو</button>
+        <a href="../panel.php" class="styled-link">پنل</a>
     </form>
 
-    <h2>Working hours</h2>
+    <h2>ساعات کاری</h2>
     <table>
         <thead>
         <tr>
-            <th> Users name</th>
-            <th>month</th>
-            <th>Total working hours</th>
-            <th>Delay</th>
-            <th>working hour on holiday</th>
-            <th>Number of working days</th>
+            <th>نام کاربر</th>
+            <th>ماه</th>
+            <th>مجموع ساعات کاری</th>
+            <th>تأخیر</th>
+            <th>ساعات کاری در تعطیلات</th>
+            <th>تعداد روزهای کاری</th>
         </tr>
         </thead>
         <tbody>
@@ -91,7 +91,23 @@ $current_year = date('Y');
                 // محاسبه ساعات کاری و تأخیر برای هر کاربر
                 $user_id = $user['id'];
                 $total_monthly_work_seconds = isset($monthly_work_times[$user_id]) ? $monthly_work_times[$user_id] : 0;
-                $delay_seconds = isset($expected_monthly_work_seconds) ? max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds) : 0;
+
+                // محاسبه تأخیر بدون در نظر گرفتن ساعات کاری جمعه و شنبه
+                $total_work_days = isset($work_days_count[$user_id]) ? $work_days_count[$user_id] : 0;
+                $total_days_in_month = Carbon::create($target_year, $target_month, 1)->daysInMonth;
+                $weekend_days = 0;
+
+                for ($day = 1; $day <= $total_days_in_month; $day++) {
+                    $date = Carbon::create($target_year, $target_month, $day);
+                    if ($date->isFriday() || $date->isSaturday()) {
+                        $weekend_days++;
+                    }
+                }
+
+                $work_days = $total_days_in_month - $weekend_days;
+                $expected_monthly_work_seconds = $work_days * $standard_work_hours_per_day * 3600;
+                $delay_seconds = max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds);
+
                 $holiday_work_seconds = isset($holiday_work_times_without_multiplier[$user_id]) ? $holiday_work_times_without_multiplier[$user_id] : 0;
                 $work_days = isset($work_days_count[$user_id]) ? $work_days_count[$user_id] : 0; // تعداد روزهای کاری
 
@@ -109,7 +125,6 @@ $current_year = date('Y');
         }
         ?>
         </tbody>
-
     </table>
 </div>
 </body>

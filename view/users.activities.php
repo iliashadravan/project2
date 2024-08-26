@@ -1,7 +1,8 @@
 <?php
-global $persian_month_name, $persian_year, $expected_monthly_work_seconds, $user, $target_month, $target_year, $current_year;
+global $persian_month_name, $persian_year, $expected_monthly_work_seconds, $user, $target_month, $target_year, $current_year, $monthly_work_times, $holiday_work_times_without_multiplier;
 require_once '../controller/users.activities.php';
 use Hekmatinasser\Verta\Verta;
+use Carbon\Carbon;
 
 // تابع تبدیل سال میلادی به شمسی
 function getJalaliYear($year) {
@@ -19,7 +20,6 @@ $current_year = date('Y');
     <title>گزارش ساعت کاری و تأخیر ماهانه</title>
     <link rel="stylesheet" href="../public/css/style.users.activities.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
 </head>
 <body>
 <div class="container">
@@ -77,6 +77,20 @@ $current_year = date('Y');
             $user_id = $user['id'];
             $total_monthly_work_seconds = isset($monthly_work_times[$user_id]) ? $monthly_work_times[$user_id] : 0;
             $holiday_work_seconds = isset($holiday_work_times_without_multiplier[$user_id]) ? $holiday_work_times_without_multiplier[$user_id] : 0;
+
+            // محاسبه تعداد روزهای غیرتعطیل
+            $total_days_in_month = Carbon::create($target_year, $target_month, 1)->daysInMonth;
+            $weekend_days = 0;
+            for ($day = 1; $day <= $total_days_in_month; $day++) {
+                $date = Carbon::create($target_year, $target_month, $day);
+                if ($date->isFriday() || $date->isSaturday()) {
+                    $weekend_days++;
+                }
+            }
+            $work_days = $total_days_in_month - $weekend_days;
+            $expected_monthly_work_seconds = $work_days * 9 * 3600;
+
+            // محاسبه تأخیر ماهانه بدون در نظر گرفتن ساعات کاری جمعه و شنبه
             $delay_seconds = max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds);
 
             echo "<tr>";

@@ -118,3 +118,12 @@ function getWorkData($db, $query_work, $target_year, $target_month) {
     $stmt->close();
     return $result;
 }
+function getWorkTimesByUserIdAndDate($db, $user_id, $date_today) {
+    $query = "SELECT * FROM work_time WHERE user_id = ? AND date = ?";
+    $stmt = $db->prepare($query);
+    $stmt->bind_param('is', $user_id, $date_today);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result;
+}
+

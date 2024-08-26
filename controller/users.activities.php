@@ -13,9 +13,6 @@ $success = [];
 $user_phone_number = $_SESSION['phone_number'];
 $user = getUserByPhoneNumber($db, $user_phone_number);
 
-// بررسی اینکه آیا کاربر ادمین است یا نه
-
-
 // دریافت ماه و سال انتخاب شده از فرم یا استفاده از مقادیر پیش‌فرض
 $target_year = isset($_POST['year']) ? intval($_POST['year']) : date('Y');
 $target_month = isset($_POST['month']) ? str_pad(intval($_POST['month']), 2, '0', STR_PAD_LEFT) : date('m');
@@ -48,7 +45,6 @@ $query_work = "
 ";
 $work_data = getWorkData($db, $query_work, $target_year, $target_month);
 
-
 $monthly_work_times = [];
 $holiday_work_times_without_multiplier = [];
 
@@ -79,9 +75,20 @@ while ($row = $work_data->fetch_assoc()) {
 // محاسبه مجموع ساعات کاری ماهانه با ضریب 1.4 برای روزهای تعطیل
 $total_monthly_work_seconds = array_sum($monthly_work_times);
 $total_days_in_month = Carbon::create($target_year, $target_month, 1)->daysInMonth;
-$expected_monthly_work_seconds = $total_days_in_month * $standard_work_hours_per_day * 3600;
 
-// محاسبه تأخیر ماهانه
+// محاسبه تعداد روزهای غیرتعطیل
+$weekend_days = 0;
+for ($day = 1; $day <= $total_days_in_month; $day++) {
+    $date = Carbon::create($target_year, $target_month, $day);
+    if ($date->isFriday() || $date->isSaturday()) {
+        $weekend_days++;
+    }
+}
+
+$work_days = $total_days_in_month - $weekend_days;
+$expected_monthly_work_seconds = $work_days * $standard_work_hours_per_day * 3600;
+
+// محاسبه تأخیر ماهانه بدون در نظر گرفتن ساعات کاری جمعه و شنبه
 $delay_seconds = max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds);
 
 // تابع فرمت‌کردن ثانیه‌ها به ساعت، دقیقه و ثانیه
