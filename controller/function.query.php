@@ -126,4 +126,3 @@ function getWorkTimesByUserIdAndDate($db, $user_id, $date_today) {
     $result = $stmt->get_result();
     return $result;
 }
-
