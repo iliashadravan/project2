@@ -9,22 +9,27 @@ use Carbon\Carbon;
 $errors = [];
 $success = [];
 
-// دریافت شماره تلفن کاربر از session
 $user_phone_number = $_SESSION['phone_number'];
 $user = getUserByPhoneNumber($db, $user_phone_number);
 
-// دریافت ماه و سال انتخاب شده از فرم یا استفاده از مقادیر پیش‌فرض (به میلادی)
-$target_year = isset($_POST['year']) ? intval($_POST['year']) : Verta::now()->year;
-$target_month = isset($_POST['month']) ? str_pad(intval($_POST['month']), 2, '0', STR_PAD_LEFT) : Verta::now()->month;
+$verta = Verta::now('Asia/Tehran');
+
+// دریافت سال و ماه جاری با در نظر گرفتن تایم‌زون
+$target_year = isset($_POST['year']) ? intval($_POST['year']) : $verta->year;
+$target_month = isset($_POST['month']) ? str_pad(intval($_POST['month']), 2, '0', STR_PAD_LEFT) : $verta->month;
 
 // تبدیل سال و ماه به شمسی با استفاده از Verta
-$verta = new Verta($target_year, $target_month, 1);
-$start_jalali = $verta->startMonth(); // اول ماه شمسی
-$end_jalali = $verta->endMonth(); // آخر ماه شمسی
+$verta_jalali = new Verta();
+$verta_jalali->setDate($target_year, $target_month, 1);
+
+// دریافت اول و آخر ماه شمسی
+$start_jalali = $verta_jalali->startMonth();
+$end_jalali = $verta_jalali->endMonth();
 
 // تبدیل تاریخ‌های شمسی به میلادی
 $start_gregorian = $start_jalali->format('Y-m-d');
 $end_gregorian = $end_jalali->format('Y-m-d');
+
 
 // ضریب ساعات کاری در روزهای تعطیل (جمعه و شنبه)
 $weekend_multiplier = 1.4;
