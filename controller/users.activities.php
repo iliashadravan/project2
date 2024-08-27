@@ -6,29 +6,28 @@ require_once 'function.query.php';
 use Hekmatinasser\Verta\Verta;
 use Carbon\Carbon;
 
-$errors = [];
-$success = [];
+// تنظیم تایم‌زون به 'Asia/Tehran'
+date_default_timezone_set('Asia/Tehran');
 
 // دریافت شماره تلفن کاربر از session
 $user_phone_number = $_SESSION['phone_number'];
 $user = getUserByPhoneNumber($db, $user_phone_number);
 
-// تنظیم تایم‌زون به 'Asia/Tehran'
-$verta = Verta::now('Asia/Tehran');
-
+// دریافت تاریخ و زمان کنونی با استفاده از تایم‌زون تنظیم‌شده
+$verta = Verta::now();
 // دریافت سال و ماه جاری با در نظر گرفتن تایم‌زون
 $target_year = isset($_POST['year']) ? intval($_POST['year']) : $verta->year;
-$target_month = isset($_POST['month']) ? str_pad(intval($_POST['month']), 2, '0', STR_PAD_LEFT) : $verta->month;
+$target_month = isset($_POST['month']) ? intval($_POST['month']) : $verta->month;
+//var_dump($target_month);
+//var_dump($target_year);
+//$verta_jalali =new Verta();
+//var_dump($verta_jalali);
+ $verta_jalali = new Verta();
+//$verta_jalali->setDate($target_year, $target_month, 1);
+//var_dump($verta_jalali);
+$start_jalali = (clone $verta_jalali)->startMonth();
+$end_jalali = (clone $verta_jalali)->endMonth();
 
-// تبدیل سال و ماه به شمسی با استفاده از Verta
-$verta_jalali = new Verta();
-$verta_jalali->setDate($target_year, $target_month, 1);
-
-// دریافت اول و آخر ماه شمسی
-$start_jalali = $verta_jalali->startMonth();
-$end_jalali = $verta_jalali->endMonth();
-
-// تبدیل تاریخ‌های شمسی به میلادی
 $start_gregorian = $start_jalali->toCarbon()->format('Y-m-d');
 $end_gregorian = $end_jalali->toCarbon()->format('Y-m-d');
 
@@ -100,3 +99,4 @@ function formatSeconds($seconds) {
     $seconds = $seconds % 60;
     return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 }
+?>
