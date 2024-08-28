@@ -1,6 +1,6 @@
 <?php
 // فایل کنترلر مرتبط را شامل می‌کنیم
-global $delay_seconds, $weekend_days, $work_days, $total_monthly_work_seconds, $user_phone_number, $user, $target_year, $target_month, $holiday_work_times_without_multiplier, $start_gregorian, $end_gregorian, $verta, $db;
+global $delay_seconds, $weekend_days, $work_days, $total_monthly_work_seconds, $user_phone_number, $target_year, $target_month, $holiday_work_times_without_multiplier, $start_gregorian, $end_gregorian, $verta, $db, $total_holiday_work_seconds;
 require_once '../controller/users.activities.php';
 use Hekmatinasser\Verta\Verta;
 
@@ -22,10 +22,12 @@ FROM work_time
 WHERE user_id = ? AND DATE(date) BETWEEN ? AND ?
 ORDER BY date
 ";
+
 $stmt = $db->prepare($query_details);
 $stmt->bind_param('iss', $user['id'], $start_gregorian, $end_gregorian);
 $stmt->execute();
 $details_data = $stmt->get_result();
+// اضافه کردن کد دیباگ برای بررسی نتایج
 ?>
 
 <!DOCTYPE html>
@@ -85,10 +87,30 @@ $details_data = $stmt->get_result();
     <!-- نمایش گزارش ساعات کاری -->
     <div class="work-report">
         <h3>Working hours report for <?php echo htmlspecialchars($target_year . '/' . $target_month); ?></h3>
-        <p>Total working hours: <?php echo formatSeconds($total_monthly_work_seconds); ?></p>
-        <p>Total working hours on holidays: <?php echo formatSeconds(array_sum($holiday_work_times_without_multiplier)); ?></p>
-        <p>Delay times <?php echo formatSeconds($delay_seconds); ?></p>
+
+        <!-- مجموع ساعات کاری کاربر جاری -->
+        <p>Total working hours:
+            <?php
+            echo isset($total_monthly_work_seconds) ? formatSeconds($total_monthly_work_seconds) : '00:00:00';
+            ?>
+        </p>
+        <!-- مجموع ساعات کاری در روزهای تعطیل برای کاربر جاری -->
+        <p>Total working hours on holidays:
+            <?php
+            echo isset($total_holiday_work_seconds) ? formatSeconds($total_holiday_work_seconds) : '00:00:00';
+
+            ?>
+
+        </p>
+
+        <!-- مجموع ساعات تأخیر برای کاربر جاری -->
+        <p>Delay times:
+            <?php
+            echo isset($delay_seconds) ? formatSeconds($delay_seconds) : '00:00:00';
+            ?>
+        </p>
     </div>
+
 
     <!-- نمایش جدول ورود و خروج -->
     <div class="work-details">

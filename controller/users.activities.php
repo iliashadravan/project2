@@ -11,7 +11,7 @@ date_default_timezone_set('Asia/Tehran');
 
 // دریافت شماره تلفن کاربر از session
 $user_phone_number = $_SESSION['phone_number'];
-$user = getUserByPhoneNumber($db, $user_phone_number);
+$user = getUserByPhoneNumber($db, $user_phone_number); // فرض شده تابعی برای دریافت کاربر وجود دارد
 
 // دریافت تاریخ و زمان کنونی با استفاده از تایم‌زون تنظیم‌شده
 $verta = Verta::now();
@@ -68,8 +68,8 @@ while ($row = $work_data->fetch_assoc()) {
     $monthly_work_times[$user_id] += $work_seconds;
 }
 
-// محاسبه مجموع ساعات کاری ماهانه با ضریب 1.4 برای روزهای تعطیل
-$total_monthly_work_seconds = array_sum($monthly_work_times);
+// مجموع ساعات کاری ماهانه با ضریب 1.4 برای روزهای تعطیل
+$total_monthly_work_seconds = $monthly_work_times[$user['id']] ?? 0; // استفاده از شناسه کاربر برای مقداردهی صحیح
 $total_days_in_month = Carbon::createFromFormat('Y-m-d', $start_gregorian)->daysInMonth;
 
 // محاسبه تعداد روزهای غیرتعطیل
@@ -87,6 +87,9 @@ $expected_monthly_work_seconds = $work_days * $standard_work_hours_per_day * 360
 // محاسبه تأخیر ماهانه بدون در نظر گرفتن ساعات کاری جمعه و شنبه
 $delay_seconds = max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds);
 
+// مجموع ساعات کاری در روزهای تعطیل بدون ضریب
+$total_holiday_work_seconds = $holiday_work_times_without_multiplier[$user['id']] ?? 0;
+
 // تابع فرمت‌کردن ثانیه‌ها به ساعت، دقیقه و ثانیه
 function formatSeconds($seconds)
 {
@@ -95,5 +98,6 @@ function formatSeconds($seconds)
     $seconds = $seconds % 60;
     return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 }
+
 
 ?>
