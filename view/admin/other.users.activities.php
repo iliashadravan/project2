@@ -74,7 +74,7 @@ $end_jalali = Verta::parse($end_gregorian)->format('Y/m/d');
     <h2>ساعات کاری</h2>
     <div class="work-report">
         <h3>گزارش ساعات کاری برای <?php echo htmlspecialchars($target_year . '/' . $target_month); ?></h3>
-<!--        <p>دوره زمانی: از --><?php //echo htmlspecialchars($start_jalali); ?><!-- تا --><?php //echo htmlspecialchars($end_jalali); ?><!--</p>-->
+        <p>دوره زمانی: از <?php echo htmlspecialchars($start_jalali); ?> تا <?php echo htmlspecialchars($end_jalali); ?></p>
         <?php if (!empty($monthly_work_times)): ?>
             <table>
                 <thead>

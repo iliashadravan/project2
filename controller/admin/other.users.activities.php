@@ -12,7 +12,10 @@ date_default_timezone_set('Asia/Tehran');
 // دریافت شماره تلفن کاربر از session
 $user_phone_number = $_SESSION['phone_number'];
 $user = getUserByPhoneNumber($db, $user_phone_number);
-
+if ($user['is_admin'] != 1) {
+    header('Location: ../goback.html');
+    exit;
+}
 // دریافت تاریخ و زمان کنونی با استفاده از تایم‌زون تنظیم‌شده
 $verta = Verta::now();
 $target_year = $_POST['year'] ?? $verta->year;
