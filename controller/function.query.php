@@ -106,13 +106,13 @@ function getUserByPhoneNumber($db, $phone_number) {
     $stmt->close();
     return $user;
 }
-function getWorkData($db, $query_work, $target_year, $target_month) {
+function getWorkData($db, $query_work, $start_date, $end_date) {
+    // آماده‌سازی کوئری
     $stmt = $db->prepare($query_work);
     if ($stmt === false) {
         throw new Exception('خطا در آماده‌سازی کوئری: ' . $db->error);
     }
-    $target_date = $target_year . '-' . $target_month;
-    $stmt->bind_param('s', $target_date);
+    $stmt->bind_param('ss', $start_date, $end_date); // استفاده از 'ss' برای دو پارامتر رشته‌ای
     $stmt->execute();
     $result = $stmt->get_result();
     $stmt->close();
