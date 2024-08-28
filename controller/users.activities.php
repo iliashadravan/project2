@@ -3,10 +3,10 @@ global $user, $db;
 require_once '../vendor/autoload.php'; // بارگذاری autoload Composer
 require_once 'db.php';
 require_once 'function.query.php';
+
 use Hekmatinasser\Verta\Verta;
 use Carbon\Carbon;
 
-// تنظیم تایم‌زون به 'Asia/Tehran'
 date_default_timezone_set('Asia/Tehran');
 
 // دریافت شماره تلفن کاربر از session
@@ -16,16 +16,11 @@ $user = getUserByPhoneNumber($db, $user_phone_number);
 // دریافت تاریخ و زمان کنونی با استفاده از تایم‌زون تنظیم‌شده
 $verta = Verta::now();
 // دریافت سال و ماه جاری با در نظر گرفتن تایم‌زون
-$target_year = isset($_POST['year']) ? intval($_POST['year']) : $verta->year;
-$target_month = isset($_POST['month']) ? intval($_POST['month']) : $verta->month;
-//var_dump($target_month);
-//var_dump($target_year);
-//$verta_jalali =new Verta();
-//var_dump($verta_jalali);
- $verta_jalali = new Verta();
-//$verta_jalali->setDate($target_year, $target_month, 1);
-//var_dump($verta_jalali);
-$start_jalali = (clone $verta_jalali)->startMonth();
+$target_year = $_POST['year'] ?? $verta->year;
+$target_month = $_POST['month'] ?? $verta->month;
+
+$verta_jalali = Verta::parse("$target_year-$target_month-1");  // ایجاد تاریخ شمسی برای اول ماه انتخابی
+$start_jalali = (clone $verta_jalali)->startMonth();           // تعیین تاریخ شروع ماه انتخابی
 $end_jalali = (clone $verta_jalali)->endMonth();
 
 $start_gregorian = $start_jalali->toCarbon()->format('Y-m-d');
@@ -93,10 +88,12 @@ $expected_monthly_work_seconds = $work_days * $standard_work_hours_per_day * 360
 $delay_seconds = max(0, $expected_monthly_work_seconds - $total_monthly_work_seconds);
 
 // تابع فرمت‌کردن ثانیه‌ها به ساعت، دقیقه و ثانیه
-function formatSeconds($seconds) {
+function formatSeconds($seconds)
+{
     $hours = floor($seconds / 3600);
     $minutes = floor(($seconds % 3600) / 60);
     $seconds = $seconds % 60;
     return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 }
+
 ?>
