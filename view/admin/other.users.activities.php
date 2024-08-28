@@ -90,8 +90,8 @@ $end_jalali = Verta::parse($end_gregorian)->format('Y/m/d');
                 <?php foreach ($monthly_work_times as $user_id => $total_work_seconds): ?>
                     <tr>
                         <td><?php echo htmlspecialchars($user_details[$user_id] ?? 'نامشخص'); ?></td>
-                        <!-- نمایش ساعات کاری بدون ضریب 1.4 -->
-                        <td><?php echo formatSeconds(array_sum($holiday_work_times_without_multiplier)); ?></td>
+                        <!-- نمایش ساعات کاری بدون ضریب 1.4 برای هر کاربر -->
+                        <td><?php echo formatSeconds($holiday_work_times_without_multiplier[$user_id] ?? 0); ?></td>
                         <!-- نمایش مجموع ساعات کاری (روزهای عادی + روزهای تعطیل با ضریب) -->
                         <td><?php echo formatSeconds($total_work_seconds); ?></td>
                         <!-- نمایش ساعات تأخیر -->
