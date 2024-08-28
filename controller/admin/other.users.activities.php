@@ -1,40 +1,29 @@
 <?php
 global $user, $db;
-require_once __DIR__. '/../../vendor/autoload.php'; // بارگذاری autoload Composer
-require_once __DIR__.'/../db.php';
-require_once __DIR__. '/../function.query.php';
+require_once __DIR__ . '/../../vendor/autoload.php'; // بارگذاری autoload Composer
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../function.query.php';
+
 use Hekmatinasser\Verta\Verta;
 use Carbon\Carbon;
 
-$errors = [];
-$success = [];
+date_default_timezone_set('Asia/Tehran');
 
 // دریافت شماره تلفن کاربر از session
 $user_phone_number = $_SESSION['phone_number'];
 $user = getUserByPhoneNumber($db, $user_phone_number);
 
-// بررسی اینکه آیا کاربر ادمین است یا نه
-if ($user['is_admin'] != 1) {
-    header('Location: ../goback.html');
-    exit;
-}
+// دریافت تاریخ و زمان کنونی با استفاده از تایم‌زون تنظیم‌شده
+$verta = Verta::now();
+$target_year = $_POST['year'] ?? $verta->year;
+$target_month = $_POST['month'] ?? $verta->month;
 
-// دریافت ماه و سال انتخاب شده از فرم یا استفاده از مقادیر پیش‌فرض
-$target_year = isset($_POST['year']) ? intval($_POST['year']) : date('Y');
-$target_month = isset($_POST['month']) ? str_pad(intval($_POST['month']), 2, '0', STR_PAD_LEFT) : date('m');
+$verta_jalali = Verta::parse("$target_year-$target_month-1");
+$start_jalali = (clone $verta_jalali)->startMonth();
+$end_jalali = (clone $verta_jalali)->endMonth();
 
-// تبدیل سال و ماه میلادی به شمسی
-function convertToJalali($year, $month) {
-    $date = new Verta("$year-$month-01");
-    return [
-        'year' => $date->format('Y'),
-        'month' => $date->formatWord('F')
-    ];
-}
-
-$jalali_date = convertToJalali($target_year, $target_month);
-$persian_year = $jalali_date['year'];
-$persian_month_name = $jalali_date['month'];
+$start_gregorian = $start_jalali->toCarbon()->format('Y-m-d');
+$end_gregorian = $end_jalali->toCarbon()->format('Y-m-d');
 
 // ضریب ساعات کاری در روزهای تعطیل (جمعه و شنبه)
 $weekend_multiplier = 1.4;
@@ -42,19 +31,19 @@ $standard_work_hours_per_day = 9; // ساعت کاری استاندارد روز
 
 // پردازش ساعات کاری
 $query_work = "
-    SELECT
-        user_id,
-        TIMESTAMPDIFF(SECOND, clock_in, clock_out) AS work_seconds,
-        DATE(date) AS work_date
-    FROM work_time
-    WHERE DATE_FORMAT(date, '%Y-%m') = ?
+SELECT
+user_id,
+TIMESTAMPDIFF(SECOND, clock_in, clock_out) AS work_seconds,
+DATE(date) AS work_date
+FROM work_time
+WHERE DATE(date) BETWEEN ? AND ?
 ";
-$work_data = getWorkData($db, $query_work, $target_year, $target_month);
-$monthly_work_times = [];             // مجموع ساعات کاری در روز های عادی
-$holiday_work_times_without_multiplier = [];   // مجموع ساعت کاری در روز های تعطیل
-$work_days_count = [];    // شمارش تعداد روزهای کاری
-$user_work_dates = []; // آرایه کمکی برای ذخیره تاریخ‌های کاری کاربران
-$non_weekend_work_seconds = []; // مجموع ساعات کاری بدون روزهای جمعه و شنبه
+$work_data = getWorkData($db, $query_work, $start_gregorian, $end_gregorian);
+
+$monthly_work_times = [];
+$holiday_work_times_without_multiplier = [];
+$user_work_dates = [];
+$non_weekend_work_seconds = [];
 
 // پردازش داده‌های کاری
 while ($row = $work_data->fetch_assoc()) {
@@ -64,52 +53,64 @@ while ($row = $work_data->fetch_assoc()) {
 
     if (!isset($monthly_work_times[$user_id])) {
         $monthly_work_times[$user_id] = 0;
-        $work_days_count[$user_id] = 0; // مقداردهی اولیه تعداد روزهای کاری
-        $user_work_dates[$user_id] = []; // مقداردهی اولیه آرایه تاریخ‌ها
-        $non_weekend_work_seconds[$user_id] = 0; // مقداردهی اولیه ساعات کاری در روزهای غیرتعطیل
-    }
-
-    if (!isset($holiday_work_times_without_multiplier[$user_id])) {
         $holiday_work_times_without_multiplier[$user_id] = 0;
+        $user_work_dates[$user_id] = [];
+        $non_weekend_work_seconds[$user_id] = 0;
     }
 
-    // محاسبه ساعات کاری واقعی و ذخیره آنها
     $day_of_week = (new Carbon($work_date))->dayOfWeek;
     if ($day_of_week == Carbon::FRIDAY || $day_of_week == Carbon::SATURDAY) {
-        $holiday_work_times_without_multiplier[$user_id] += $work_seconds; // ذخیره ساعات واقعی بدون ضریب
-        $work_seconds *= $weekend_multiplier; // اعمال ضریب 1.4 به ساعات کاری
+        $holiday_work_times_without_multiplier[$user_id] += $work_seconds;
+        $work_seconds *= $weekend_multiplier; // اعمال ضریب به ساعات کاری
     } else {
-        $non_weekend_work_seconds[$user_id] += $work_seconds; // ذخیره ساعات کاری روزهای غیرتعطیل
+        $non_weekend_work_seconds[$user_id] += $work_seconds;
     }
 
-    // افزایش تعداد روزهای کاری برای هر کاربر، اگر تاریخ جدید باشد
     if (!in_array($work_date, $user_work_dates[$user_id])) {
-        $work_days_count[$user_id]++;
-        $user_work_dates[$user_id][] = $work_date; // ذخیره تاریخ جاری در آرایه
+        $user_work_dates[$user_id][] = $work_date;
     }
 
     $monthly_work_times[$user_id] += $work_seconds;
 }
 
-// محاسبه مجموع ساعات کاری ماهانه بدون احتساب روزهای تعطیل
-$total_non_weekend_work_seconds = array_sum($non_weekend_work_seconds);
-$total_days_in_month = Carbon::create($target_year, $target_month, 1)->daysInMonth;
+// محاسبه مجموع ساعات کاری ماهانه با ضریب 1.4 برای روزهای تعطیل
+$total_monthly_work_seconds = 0;
+$total_days_in_month = Carbon::createFromFormat('Y-m-d', $start_gregorian)->daysInMonth;
 
-// تعداد روزهای غیرتعطیل در ماه جاری
-$non_weekend_days = Carbon::create($target_year, $target_month, 1)
-    ->endOfMonth()
-    ->diffInDaysFiltered(function (Carbon $date) {
-        return !$date->isFriday() && !$date->isSaturday();
-    }, Carbon::create($target_year, $target_month, 1));
+// محاسبه تعداد روزهای تعطیل
+$weekend_days = 0;
+for ($day = 1; $day <= $total_days_in_month; $day++) {
+    $date = Carbon::create($target_year, $target_month, $day);
+    if ($date->isFriday() || $date->isSaturday()) {
+        $weekend_days++;
+    }
+}
 
-// محاسبه ساعات کاری مورد انتظار بدون روزهای تعطیل
-$expected_non_weekend_work_seconds = $non_weekend_days * $standard_work_hours_per_day * 3600;
+// محاسبه تعداد روزهای کاری
+$work_days = $total_days_in_month - $weekend_days;
+$expected_monthly_work_seconds = $work_days * $standard_work_hours_per_day * 3600;
 
-// محاسبه تأخیر ماهانه بدون روزهای تعطیل
-$delay_seconds = max(0, $expected_non_weekend_work_seconds - $total_non_weekend_work_seconds);
+// جمع‌بندی مجموع ساعات کاری در روزهای عادی و روزهای تعطیل با ضریب
+foreach ($monthly_work_times as $user_id => $total_work_seconds) {
+    $holiday_work_seconds = $holiday_work_times_without_multiplier[$user_id] * $weekend_multiplier;
+    $user_total_work_seconds = $non_weekend_work_seconds[$user_id] + $holiday_work_seconds;
+    $total_monthly_work_seconds += $user_total_work_seconds;
+}
+
+// محاسبه تأخیر ماهانه
+$delay_seconds = [];
+foreach ($user_work_dates as $user_id => $dates) {
+    $user_work_seconds = $non_weekend_work_seconds[$user_id] ?? 0;
+    $holiday_work_seconds = $holiday_work_times_without_multiplier[$user_id] * $weekend_multiplier;
+    $user_total_work_seconds = $user_work_seconds + $holiday_work_seconds;
+    $user_delay_seconds = max(0, $expected_monthly_work_seconds - $user_total_work_seconds);
+
+    $delay_seconds[$user_id] = $user_delay_seconds;
+}
 
 // تابع فرمت‌کردن ثانیه‌ها به ساعت، دقیقه و ثانیه
-function formatSeconds($seconds) {
+function formatSeconds($seconds)
+{
     $hours = floor($seconds / 3600);
     $minutes = floor(($seconds % 3600) / 60);
     $seconds = $seconds % 60;
