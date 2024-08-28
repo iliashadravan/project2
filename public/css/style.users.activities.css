@@ -1,106 +1,110 @@
 @font-face {
-    font-family: vazir;
+    font-family: 'Vazir';
     src: url("../fonts/vazir/Vazir-Light.eot");
     src: url("../fonts/vazir/Vazir-Light.woff") format("woff"),
-    url("../fonts/vazir/Vazir-Medium.ttf") format("ttf"),
+    url("../fonts/vazir/Vazir-Medium.ttf") format("truetype"),
     url("../fonts/vazir/Vazir-Light.woff2") format("woff2");
 }
 
 body {
-    font-family: vazir, sans-serif;
+    font-family: 'Vazir', Arial, sans-serif;
+    direction: rtl;
     margin: 0;
     padding: 0;
-    direction: rtl;
-    background-color: #f0f2f5;
+    background-color: #848684; /* رنگ پس‌زمینه نرم‌تر */
     color: #333;
 }
+
 .container {
-    width: 80%;
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 20px;
+    max-width: 900px; /* محدود کردن عرض محتوا */
+    margin: 40px auto;
     background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 120px;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    margin-top: 100px;
 }
-h1 {
-    text-align: center;
-    color: #4CAF50;
+
+h1, h3 {
+    color: #007bff; /* رنگ مناسب برای عنوان‌ها */
     margin-bottom: 20px;
-}
-form {
-    margin-bottom: 20px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-label {
     font-weight: bold;
-    margin-right: 10px;
+}
+
+h1 {
+    font-size: 1.8em;
+    margin-bottom: 30px;
+}
+
+h3 {
+    font-size: 1.4em;
+    margin-bottom: 20px;
+}
+
+.date-selection, .work-report, .work-details {
+    margin-bottom: 30px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
     color: #555;
+    font-weight: 600;
 }
-select, button {
-    padding: 10px;
-    margin: 5px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+
+input[type="number"], select, button {
+    padding: 12px;
+    font-size: 1em;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
 }
-select {
-    width: 160px;
-}
+
 button {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #007bff; /* رنگ دکمه */
+    color: #ffffff;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s, box-shadow 0.3s;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-weight: 600;
 }
+
 button:hover {
-    background-color: #45a049;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #0056b3; /* تغییر رنگ در هاور */
+    transform: scale(1.05); /* افزودن انیمیشن مقیاس */
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    overflow: hidden;
+    margin-top: 20px;
 }
-th, td {
+
+table, th, td {
     border: 1px solid #ddd;
-    padding: 12px;
+}
+
+th, td {
+    padding: 15px;
     text-align: center;
 }
+
 th {
-    background-color: #f4f4f4;
+    background-color: #f8f9fa;
     color: #333;
+    font-weight: 600;
 }
+
 tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #f1f3f5;
 }
+
 tr:hover {
-    background-color: #f1f1f1;
-}
-.icon-link {
-    text-decoration: none;
-    color: #343a40;
-    background-color: #ffc107;
-    padding: 10px 20px;
-    border-radius: 5px;
-    display: inline-flex;
-    align-items: center;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
+    background-color: #e9ecef; /* تغییر رنگ سطر در هاور */
 }
 
-.icon-link i {
-    margin-right: 8px; /* فاصله بین آیکون و متن */
-}
-
-.icon-link:hover {
-    background-color: #e0a800;
+.work-details {
+    margin-top: 30px;
 }
