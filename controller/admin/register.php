@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $SQL = "INSERT INTO users (phone_number, password, firstName, lastName) VALUES ('$phone_number', '$hashed_password', '$firstName', '$lastName')";
         if (mysqli_query($db, $SQL)) {
-            header('Location: ../view/panel.php');
+            header('Location: ../panel.php');
             exit;
         }else{
             $errors['db'] = 'Database error'. mysqli_error($db);
