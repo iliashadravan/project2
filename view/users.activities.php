@@ -98,9 +98,7 @@ $details_data = $stmt->get_result();
         <p>Total working hours on holidays:
             <?php
             echo isset($total_holiday_work_seconds) ? formatSeconds($total_holiday_work_seconds) : '00:00:00';
-
             ?>
-
         </p>
 
         <!-- مجموع ساعات تأخیر برای کاربر جاری -->
