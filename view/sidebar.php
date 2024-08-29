@@ -9,7 +9,6 @@ require_once '../controller/sidebar.php';
         <!-- لینک‌هایی که برای همه کاربران نمایش داده می‌شود -->
         <li><a href="panel.php">User Panel</a></li>
         <li><a href="edit.password.php">Edit Password</a></li>
-        <li><a href="/../controller/logout.php">Log Out</a></li>
         <li><a href="users.activities.php">Activities</a></li>
 
         <!-- لینک‌های مخصوص ادمین -->
@@ -18,5 +17,7 @@ require_once '../controller/sidebar.php';
             <li><a href="../view/admin/other.users.activities.php">Users Activities</a></li>
             <li><a href="../view/admin/users.situation.php">Users Situation</a></li>
         <?php } ?>
+        <li><a href="/../controller/logout.php" style="color: #ff0000">Log Out</a></li>
+
     </ul>
 </div>
